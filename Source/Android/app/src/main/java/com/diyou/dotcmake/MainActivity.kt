@@ -23,10 +23,10 @@ class MainActivity : AppCompatActivity() {
      * A native method that is implemented by the 'dotcmake' native library,
      * which is packaged with this application.
      */
-    external fun stringFromJNI(): String
+    private external fun stringFromJNI(): String
 
     companion object {
-        // Used to load the 'dotcmake' library on application startup.
+        // Used to load the 'native' library on application startup.
         init {
             System.loadLibrary("native")
         }
