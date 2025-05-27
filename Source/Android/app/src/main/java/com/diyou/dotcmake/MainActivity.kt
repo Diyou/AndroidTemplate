@@ -28,7 +28,7 @@ class MainActivity : AppCompatActivity() {
     companion object {
         // Used to load the 'dotcmake' library on application startup.
         init {
-            System.loadLibrary("dotcmake")
+            System.loadLibrary("native")
         }
     }
 }
