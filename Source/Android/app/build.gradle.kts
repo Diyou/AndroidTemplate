@@ -5,7 +5,8 @@ plugins {
 
 android {
     namespace = "com.diyou.dotcmake"
-    compileSdk = 35
+    compileSdk = 36
+    ndkVersion = "29.0.13113456"
 
     defaultConfig {
         applicationId = "com.diyou.dotcmake"
