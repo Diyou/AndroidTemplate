@@ -16,6 +16,12 @@ android {
         versionName = "1.0"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
+
+        externalNativeBuild {
+            cmake {
+                arguments += "-DCMAKE_PROJECT_TOP_LEVEL_INCLUDES=${project.file("../../../.cmake/ToolChains/gradle/callback.cmake").absolutePath}"
+            }
+        }
     }
 
     buildTypes {

@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 4.0.0 FATAL_ERROR)
+cmake_minimum_required(VERSION 4.0.0)
 
 set(DOTCMAKE_CONFIGURE_IDE ON)
 
@@ -11,10 +11,9 @@ project(HelloWorld
 
 #EXE(${PROJECT_NAME} Source/main.c++)
 
-#include(C++Utils)
-#target_link_libraries(${PROJECT_NAME} PRIVATE .cmake::Utils)
+include(C++Utils)
 
-add_library(${PROJECT_NAME} SHARED
+DLL(${PROJECT_NAME}
     Source/jni.c++
 )
 set_target_properties(${PROJECT_NAME} PROPERTIES
@@ -22,6 +21,7 @@ set_target_properties(${PROJECT_NAME} PROPERTIES
 )
 
 target_link_libraries(${PROJECT_NAME}
+    .cmake::Utils
     android
     log
 )
