@@ -12,14 +12,8 @@ project(HelloWorld
 find_package(SDL3 REQUIRED CONFIG)
 
 include(C++Utils)
-if(ANDROID)
-    DLL(${PROJECT_NAME} Source/main.c++)
-    set_target_properties(${PROJECT_NAME} PROPERTIES
-            OUTPUT_NAME main
-    )
-else()
-    EXE(${PROJECT_NAME} Source/main.c++)
-endif()
+
+EXE(${PROJECT_NAME} Source/main.c++)
 
 target_link_libraries(${PROJECT_NAME}
     .cmake::Utils

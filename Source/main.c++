@@ -1,5 +1,6 @@
 #ifndef CMAKE_IMPORT_STD
 #  include <filesystem>
+#  include <format>
 #  include <source_location>
 #  include <span>
 #endif
