@@ -17,10 +17,6 @@ if(ANDROID)
     set_target_properties(${PROJECT_NAME} PROPERTIES
             OUTPUT_NAME main
     )
-    target_link_libraries(${PROJECT_NAME}
-        android
-        log
-    )
 else()
     EXE(${PROJECT_NAME} Source/main.c++)
 endif()

@@ -1,6 +1,5 @@
 #ifndef CMAKE_IMPORT_STD
 #  include <filesystem>
-#  include <iostream>
 #  include <source_location>
 #  include <span>
 #endif
@@ -17,19 +16,24 @@ import dotcmake;
 
 using namespace std;
 
+void constexpr Log(string const &view)
+{
+  SDL_Log("%s", view.c_str());
+}
+
 template< auto F >
 void constexpr Log(
   string_view const &text,
   source_location    current = source_location::current())
 {
   using VoidFunction = void (*)();
-  cout << format(
+  Log(format(
     "[{}:{}][{}({})] {}\n",
     current.line(),
     current.column(),
     VoidFunction(F),
     dotcmake::GetFunctionName< F >(),
-    text);
+    text));
 }
 
 template< auto F >
@@ -46,12 +50,12 @@ void constexpr Log(
   string_view const &text,
   source_location    current = source_location::current())
 {
-  cout << format(
+  Log(format(
     "[{}:{}][{}]\t{}\n",
     current.line(),
     current.column(),
     current.function_name(),
-    text);
+    text));
 }
 
 void constexpr Debug(
@@ -88,17 +92,14 @@ struct AppState
     }
 
     SDL_SetLogPriorities(SDL_LOG_PRIORITY_VERBOSE);
-    SDL_Log("Starting SDL");
 
     if (!SDL_Init(SDL_INIT_VIDEO)) [[unlikely]] {
       SDL_LogError(
         SDL_LOG_CATEGORY_ERROR, "SDL_Init failed: %s", SDL_GetError());
       return SDL_APP_FAILURE;
     }
-    SDL_Log("SDL_Init succeeded");
 
     auto const cmd = Command();
-    cout << format("{}\nHello SDL\n", Command().c_str());
 
     MainWindow =
       SDL_CreateWindow(cmd.filename().c_str(), 600, 800, SDL_WINDOW_RESIZABLE);
