@@ -5,30 +5,18 @@ import android.os.Bundle
 import android.widget.TextView
 import com.diyou.dotcmake.databinding.ActivityMainBinding
 
-class MainActivity : AppCompatActivity() {
+import org.libsdl.app.SDLActivity
 
-    private lateinit var binding: ActivityMainBinding
+class MainActivity : SDLActivity() {
+
+    /*override fun getLibraries(): Array<String> {
+        return arrayOf(
+            "SDL3",
+            "main"
+        )
+    }*/
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-
-        binding = ActivityMainBinding.inflate(layoutInflater)
-        setContentView(binding.root)
-
-        // Example of a call to a native method
-        binding.sampleText.text = stringFromJNI()
-    }
-
-    /**
-     * A native method that is implemented by the 'dotcmake' native library,
-     * which is packaged with this application.
-     */
-    private external fun stringFromJNI(): String
-
-    companion object {
-        // Used to load the 'native' library on application startup.
-        init {
-            System.loadLibrary("native")
-        }
     }
 }

@@ -48,6 +48,7 @@ android {
     }
     buildFeatures {
         viewBinding = true
+        prefab = true
     }
 }
 
@@ -60,4 +61,6 @@ dependencies {
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
+
+    implementation(files("libs/SDL3/SDL3-3.2.14.aar"))
 }
