@@ -4,7 +4,7 @@ on:
   workflow_dispatch:
 
 env:
-  LLVM_VERSION: 20
+  LLVM_VERSION: 20.1.3
   SDL_VERSION: 3.2.14
   CMAKE_VERSION: 4.0.2
   NINJA_VERSION: 1.12.1
@@ -14,11 +14,11 @@ jobs:
     runs-on: macos-15
 
     steps:
-      - name: Install LLVM/Clang via Homebrew
-        run: |
-          brew update
-          brew install llvm@${{env.LLVM_VERSION}}
-          echo 'export PATH="/opt/homebrew/opt/llvm/bin:$PATH"' >> /Users/runner/.bash_profile
+      - name: Install LLVM and Clang
+        uses: KyleMayes/install-llvm-action@v2
+        with:
+          version: ${{env.LLVM_VERSION}}
+          env: true
 
       - name: Get CMake and Ninja
         uses: lukka/get-cmake@latest
