@@ -40,8 +40,8 @@ jobs:
 
       - name: CMake Configuration
         env:
-          CC: '$LLVM_BIN_PATH/clang'
-          CXX: '$LLVM_BIN_PATH/clang++'
+          CC: '${{github.env.LLVM_BIN_PATH}}/clang'
+          CXX: '${{github.env.LLVM_BIN_PATH}}/clang++'
         run: cmake --preset=${{env.BUILD_TYPE}}
 
       - name: CMake Build
