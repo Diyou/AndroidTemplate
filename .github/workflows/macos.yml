@@ -1,4 +1,4 @@
-name: Windows MSVC
+name: macOS clang
 
 on:
   workflow_dispatch:
@@ -10,7 +10,7 @@ env:
 
 jobs:
   build:
-    runs-on: windows-2025
+    runs-on: macos-15
 
     steps:
       - name: Get CMake and Ninja
@@ -29,10 +29,7 @@ jobs:
           submodules: true
 
       - name: CMake Configuration
-        shell: cmd
-        run: |
-          call "C:\Program Files\Microsoft Visual Studio\2022\Enterprise\VC\Auxiliary\Build\vcvars64.bat"  
-          cmake --preset=debug
+        run: cmake --preset=debug
 
       - name: CMake Build
         run: cmake --build --preset=debug
