@@ -18,11 +18,16 @@ jobs:
           brew update
           brew install cmake llvm@${{env.LLVM_VERSION}}
           echo "$(brew --prefix llvm@${{env.LLVM_VERSION}})/bin" >> $GITHUB_PATH
+          LLVM_PREFIX=$(brew --prefix llvm@${{env.LLVM_VERSION}})
+          echo "Homebrew LLVM prefix: $LLVM_PREFIX"
+          echo "LLVM_BIN_PATH=$LLVM_PREFIX/bin" >> $GITHUB_ENV
 
       - name: Verify Clang Version
         run: |
+          echo "Checking Clang version using direct path from Homebrew..."
+          "$LLVM_BIN_PATH/clang" --version
+          echo "Checking PATH's Clang version (for comparison, might still be AppleClang initially)"
           clang --version
-          clang++ --version
 
       - name: Setup SDL sdk
         uses: libsdl-org/setup-sdl@main
@@ -34,6 +39,9 @@ jobs:
           submodules: true
 
       - name: CMake Configuration
+        env:
+          CC: '$LLVM_BIN_PATH/clang'
+          CXX: '$LLVM_BIN_PATH/clang++'
         run: cmake --preset=${{env.BUILD_TYPE}}
 
       - name: CMake Build
