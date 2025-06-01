@@ -34,9 +34,6 @@ jobs:
           submodules: true
 
       - name: CMake Configuration
-        env:
-          CC: $(brew --prefix llvm@${{env.LLVM_VERSION}})/bin/clang
-          CXX: $(brew --prefix llvm@${{env.LLVM_VERSION}})/bin/clang++
         run: cmake --preset=${{env.BUILD_TYPE}}
 
       - name: CMake Build
