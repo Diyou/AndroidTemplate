@@ -3,6 +3,7 @@
 #  include <format>
 #  include <source_location>
 #  include <span>
+#  include <unordered_set>
 #endif
 
 #define SDL_MAIN_USE_CALLBACKS
@@ -68,44 +69,84 @@ void constexpr Debug(
   }
 }
 
-struct AppState
+struct Window
 {
-  span< char * > const Args;
-  SDL_Window          *MainWindow = nullptr;
-  SDL_Renderer        *Renderer   = nullptr;
+  SDL_Window   *window;
+  SDL_Renderer *renderer;
 
   [[nodiscard]]
-  auto
-  Command() const
+  SDL_AppResult
+  Iterate() const
   {
-    return filesystem::path{Args.front()};
+    SDL_SetRenderDrawColor(renderer, 0xff, 0x00, 0x00, 0xff);
+    SDL_RenderClear(renderer);
+    SDL_RenderPresent(renderer);
+    return SDL_APP_CONTINUE;
+  }
+
+  ~Window()
+  {
+    SDL_DestroyRenderer(renderer);
+    SDL_DestroyWindow(window);
+  }
+};
+
+struct AppState
+{
+  span< char * > const               args;
+  filesystem::path const             arg0;
+  unordered_set< string_view > const videoDrivers;
+
+  unique_ptr< Window >               mainWindow = nullptr;
+
+  AppState(size_t argc, char **argv)
+  : args(argv, argc)
+  , arg0{args.front()}
+  , videoDrivers{GetVideoDrivers()}
+  {
+    if constexpr (dotcmake::Compiler::DEBUG) {
+      SDL_SetLogPriorities(SDL_LOG_PRIORITY_VERBOSE);
+    }
   }
 
   SDL_AppResult
-  OnInit()
+  Init()
   {
     if constexpr (dotcmake::Platform::Linux) {
-      SDL_SetHint(SDL_HINT_VIDEO_DRIVER, "wayland");
-    }
-    if constexpr (dotcmake::Platform::Android) {
-      // Prevent keyboard popup
-      SDL_SetHint(SDL_HINT_ENABLE_SCREEN_KEYBOARD, "0");
+      if (videoDrivers.contains("wayland")) {
+        SDL_SetHint(SDL_HINT_VIDEO_DRIVER, "wayland");
+      }
     }
 
-    SDL_SetLogPriorities(SDL_LOG_PRIORITY_VERBOSE);
-
-    if (!SDL_Init(SDL_INIT_VIDEO)) [[unlikely]] {
+    if (!SDL_Init(SDL_INIT_VIDEO | SDL_INIT_AUDIO | SDL_INIT_GAMEPAD))
+      [[unlikely]]
+    {
       SDL_LogError(
         SDL_LOG_CATEGORY_ERROR, "SDL_Init failed: %s", SDL_GetError());
       return SDL_APP_FAILURE;
     }
 
-    auto const cmd = Command();
+    SDL_Rect bounds{0, 0, 600, 800};
+    if constexpr (dotcmake::Platform::MOBILE) {
+      if (!SDL_GetDisplayBounds(SDL_GetPrimaryDisplay(), &bounds)) {
+        return SDL_APP_FAILURE;
+      }
+    }
 
-    MainWindow =
-      SDL_CreateWindow(cmd.filename().c_str(), 600, 800, SDL_WINDOW_RESIZABLE);
+    Log(format("Bound ({}:{})\n", bounds.w, bounds.h));
+    auto *window = SDL_CreateWindow(
+      arg0.filename().c_str(), bounds.w, bounds.h, SDL_WINDOW_RESIZABLE);
 
-    Renderer = SDL_CreateRenderer(MainWindow, nullptr);
+    if (window == nullptr) {
+      return SDL_APP_FAILURE;
+    }
+
+    auto *renderer = SDL_CreateRenderer(window, nullptr);
+    if (renderer == nullptr) {
+      return SDL_APP_FAILURE;
+    }
+
+    mainWindow = make_unique< Window >(window, renderer);
 
     return SDL_APP_CONTINUE;
   }
@@ -114,11 +155,7 @@ struct AppState
   SDL_AppResult
   Iterate() const
   {
-    SDL_SetRenderDrawColor(Renderer, 0xff, 0x00, 0x00, 0xff);
-    SDL_RenderClear(Renderer);
-    SDL_RenderPresent(Renderer);
-
-    return SDL_APP_CONTINUE;
+    return mainWindow->Iterate();
   }
 
   SDL_AppResult
@@ -130,24 +167,28 @@ struct AppState
     }
   }
 
-  ~AppState()
+  ~AppState() { SDL_Quit(); }
+
+  static unordered_set< string_view >
+  GetVideoDrivers()
   {
-    if (Renderer != nullptr) {
-      SDL_DestroyRenderer(Renderer);
+    size_t const                driver_count = SDL_GetNumVideoDrivers();
+    decltype(GetVideoDrivers()) drivers;
+    drivers.reserve(driver_count);
+
+    for (int i = 0; i < driver_count; i++) {
+      drivers.emplace(SDL_GetVideoDriver(i));
     }
-    if (MainWindow != nullptr) {
-      SDL_DestroyWindow(MainWindow);
-    }
-    SDL_Quit();
+    return drivers;
   }
 };
 
 SDLMAIN_DECLSPEC SDL_AppResult SDLCALL
 SDL_AppInit(void **appstate, int argc, char *argv[])
 {
-  auto *app = new AppState{span< char * >{argv, argc + argv}};
+  auto *app = new AppState{static_cast< size_t >(argc), argv};
   *appstate = app;
-  return app->OnInit();
+  return app->Init();
 }
 
 SDLMAIN_DECLSPEC SDL_AppResult SDLCALL

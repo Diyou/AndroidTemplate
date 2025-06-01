@@ -2,10 +2,10 @@ cmake_minimum_required(VERSION 4.0.0)
 
 set(DOTCMAKE_CONFIGURE_IDE ON)
 
-project(HelloWorld
+project(HelloSDL
     VERSION 0.0.1
-    DESCRIPTION [=[Hello World C++]=]
-    HOMEPAGE_URL https://en.wikipedia.org/wiki/%22Hello,_World!%22_program
+    DESCRIPTION [=[A multi-platform template for SDL3 apps]=]
+    HOMEPAGE_URL https://wiki.libsdl.org/SDL3/FrontPage
     LANGUAGES CXX
 )
 

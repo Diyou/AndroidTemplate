@@ -1,1 +1,1 @@
-# AndroidTemplate
+# SDLTemplate
