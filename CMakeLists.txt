@@ -9,13 +9,9 @@ project(HelloSDL
     LANGUAGES CXX
 )
 
-find_package(SDL3 REQUIRED CONFIG)
-
-include(C++Utils)
-
 EXE(${PROJECT_NAME} Source/main.c++)
 
+add_subdirectory(Source/Modules)
 target_link_libraries(${PROJECT_NAME}
-    .cmake::Utils
-    SDL3::SDL3
+    ${PROJECT_NAME}::MODULES
 )

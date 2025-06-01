@@ -1,7 +1,6 @@
 #ifndef CMAKE_IMPORT_STD
 #  include <filesystem>
 #  include <format>
-#  include <source_location>
 #  include <span>
 #  include <unordered_set>
 #endif
@@ -15,81 +14,10 @@ import std;
 #endif
 
 import dotcmake;
+import Logger;
+import Window;
 
 using namespace std;
-
-template< auto F >
-void constexpr Log(
-  string_view const &text,
-  source_location    current = source_location::current())
-{
-  using VoidFunction = void (*)();
-  SDL_Log(
-    "%s",
-    format(
-      "[{}:{}][{}({})]\t{}\n",
-      current.line(),
-      current.column(),
-      VoidFunction(F),
-      dotcmake::GetFunctionName< F >(),
-      text));
-}
-
-template< auto F >
-void constexpr Debug(
-  string_view const &text,
-  source_location    current = source_location::current())
-{
-  if constexpr (dotcmake::Compiler::DEBUG) {
-    Log< F >(text, current);
-  }
-}
-
-void constexpr Log(
-  string_view const &text,
-  source_location    current = source_location::current())
-{
-  SDL_Log(
-    "%s",
-    format(
-      "[{}:{}][{}]\t{}\n",
-      current.line(),
-      current.column(),
-      current.function_name(),
-      text)
-      .c_str());
-}
-
-void constexpr Debug(
-  string_view const &text,
-  source_location    current = source_location::current())
-{
-  if constexpr (dotcmake::Compiler::DEBUG) {
-    Log(text, current);
-  }
-}
-
-struct Window
-{
-  SDL_Window   *window;
-  SDL_Renderer *renderer;
-
-  [[nodiscard]]
-  SDL_AppResult
-  Iterate() const
-  {
-    SDL_SetRenderDrawColor(renderer, 0xff, 0x00, 0x00, 0xff);
-    SDL_RenderClear(renderer);
-    SDL_RenderPresent(renderer);
-    return SDL_APP_CONTINUE;
-  }
-
-  ~Window()
-  {
-    SDL_DestroyRenderer(renderer);
-    SDL_DestroyWindow(window);
-  }
-};
 
 struct AppState
 {
