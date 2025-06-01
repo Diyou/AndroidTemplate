@@ -27,25 +27,26 @@ struct AppState
 
   unique_ptr< Window >               mainWindow = nullptr;
 
-  AppState(size_t argc, char **argv)
-  : args(argv, argc)
+  AppState(auto const &args)
+  : args(args)
   , arg0{args.front()}
   , videoDrivers{GetVideoDrivers()}
   {
     if constexpr (dotcmake::Compiler::DEBUG) {
       SDL_SetLogPriorities(SDL_LOG_PRIORITY_VERBOSE);
     }
-  }
 
-  SDL_AppResult
-  Init()
-  {
+    // Define hints
     if constexpr (dotcmake::Platform::Linux) {
       if (videoDrivers.contains("wayland")) {
         SDL_SetHint(SDL_HINT_VIDEO_DRIVER, "wayland");
       }
     }
+  }
 
+  SDL_AppResult
+  Init()
+  {
     if (!SDL_Init(SDL_INIT_VIDEO | SDL_INIT_AUDIO | SDL_INIT_GAMEPAD))
       [[unlikely]]
     {
@@ -54,10 +55,11 @@ struct AppState
       return SDL_APP_FAILURE;
     }
 
-    SDL_Rect bounds{0, 0, 600, 800};
+    SDL_Rect bounds{0, 0, Window::DEFAULT_WIDTH, Window::DEFAULT_HEIGHT};
     if constexpr (dotcmake::Platform::MOBILE) {
       auto const primaryDisplay = SDL_GetPrimaryDisplay();
       if (primaryDisplay == 0 || !SDL_GetDisplayBounds(primaryDisplay, &bounds))
+        [[unlikely]]
       {
         SDL_LogError(
           SDL_LOG_CATEGORY_ERROR,
@@ -68,16 +70,21 @@ struct AppState
     }
 
     auto *window = SDL_CreateWindow(
-      arg0.filename().c_str(), bounds.w, bounds.h, SDL_WINDOW_RESIZABLE);
+      arg0.filename().c_str(),
+      bounds.w,
+      bounds.h,
+      dotcmake::Platform::MOBILE
+        ? SDL_WINDOW_FULLSCREEN
+        : SDL_WINDOW_RESIZABLE | SDL_WINDOW_TRANSPARENT);
 
-    if (window == nullptr) {
+    if (window == nullptr) [[unlikely]] {
       SDL_LogError(
         SDL_LOG_CATEGORY_ERROR, "SDL_CreateWindow failed: %s", SDL_GetError());
       return SDL_APP_FAILURE;
     }
 
     auto *renderer = SDL_CreateRenderer(window, nullptr);
-    if (renderer == nullptr) {
+    if (renderer == nullptr) [[unlikely]] {
       SDL_LogError(
         SDL_LOG_CATEGORY_ERROR,
         "SDL_CreateRenderer failed: %s",
@@ -99,7 +106,7 @@ struct AppState
   }
 
   SDL_AppResult
-  OnEvent(SDL_Event *event)
+  Event(SDL_Event *event)
   {
     switch (event->type) {
       case SDL_EVENT_QUIT: return SDL_APP_SUCCESS;
@@ -126,7 +133,7 @@ struct AppState
 SDLMAIN_DECLSPEC SDL_AppResult SDLCALL
 SDL_AppInit(void **appstate, int argc, char *argv[])
 {
-  auto *app = new AppState{static_cast< size_t >(argc), argv};
+  auto *app = new AppState{span{argv, argv + argc}};
   *appstate = app;
   return app->Init();
 }
@@ -134,7 +141,7 @@ SDL_AppInit(void **appstate, int argc, char *argv[])
 SDLMAIN_DECLSPEC SDL_AppResult SDLCALL
 SDL_AppEvent(void *appstate, SDL_Event *event)
 {
-  return static_cast< AppState * >(appstate)->OnEvent(event);
+  return static_cast< AppState * >(appstate)->Event(event);
 }
 
 SDLMAIN_DECLSPEC SDL_AppResult SDLCALL

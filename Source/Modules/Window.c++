@@ -2,10 +2,15 @@ module;
 #include <SDL3/SDL.h>
 export module Window;
 
+import Logger;
+
 export struct Window
 {
-  SDL_Window   *window;
-  SDL_Renderer *renderer;
+  static constexpr int DEFAULT_WIDTH  = 600;
+  static constexpr int DEFAULT_HEIGHT = 800;
+
+  SDL_Window          *window;
+  SDL_Renderer        *renderer;
 
   [[nodiscard]]
   SDL_AppResult
