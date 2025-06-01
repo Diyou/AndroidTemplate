@@ -1,0 +1,29 @@
+name: WASM
+
+on:
+  workflow_dispatch:
+
+env:
+  CMAKE_VERSION: 4.0.2
+  NINJA_VERSION: 1.12.1
+
+jobs:
+  build:
+    runs-on: ubuntu-24.04
+
+    steps:
+      - name: Get CMake and Ninja
+        uses: lukka/get-cmake@latest
+        with:
+          cmakeVersion: ${{env.CMAKE_VERSION}}
+          ninjaVersion: ${{env.NINJA_VERSION}}
+
+      - uses: actions/checkout@v4
+        with:
+          submodules: true
+
+      - name: CMake Configuration
+        run: cmake --preset=debug
+
+      - name: CMake Build
+        run: cmake --build --preset=debug
