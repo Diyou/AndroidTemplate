@@ -19,6 +19,11 @@ jobs:
           brew install cmake llvm@${{env.LLVM_VERSION}}
           echo "$(brew --prefix llvm@${{env.LLVM_VERSION}})/bin" >> $GITHUB_PATH
 
+      - name: Verify Clang Version
+        run: |
+          clang --version
+          clang++ --version
+
       - name: Setup SDL sdk
         uses: libsdl-org/setup-sdl@main
         with:
@@ -29,6 +34,9 @@ jobs:
           submodules: true
 
       - name: CMake Configuration
+        env:
+          CC: $(brew --prefix llvm@${{env.LLVM_VERSION}})/bin/clang
+          CXX: $(brew --prefix llvm@${{env.LLVM_VERSION}})/bin/clang++
         run: cmake --preset=${{env.BUILD_TYPE}}
 
       - name: CMake Build
