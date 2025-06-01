@@ -1,0 +1,33 @@
+name: WASM
+
+on:
+  workflow_dispatch:
+
+env:
+  CMAKE_VERSION: 4.0.2
+  NINJA_VERSION: 1.12.1
+  BUILD_TYPE: debug
+
+jobs:
+  build:
+    runs-on: ubuntu-24.04
+    container: emscripten/emsdk:4.0.9
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          submodules: true
+
+      - name: Get CMake and Ninja
+        uses: lukka/get-cmake@latest
+        with:
+          cmakeVersion: ${{env.CMAKE_VERSION}}
+          ninjaVersion: ${{env.NINJA_VERSION}}
+
+      - name: CMake Configuration
+        env:
+          EMSCRIPTEN_ROOT: /emsdk/upstream/emscripten
+        run: cmake --preset=${{env.BUILD_TYPE}}::emscripten
+
+      - name: CMake Build
+        run: cmake --build --preset=${{env.BUILD_TYPE}}::emscripten

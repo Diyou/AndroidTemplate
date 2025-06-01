@@ -16,7 +16,7 @@ using namespace std;
 export
 {
   template< auto F >
-  void constexpr Log(
+  void inline Log(
     string_view const &text,
     source_location    current = source_location::current())
   {
@@ -33,7 +33,7 @@ export
   }
 
   template< auto F >
-  void constexpr Debug(
+  void inline Debug(
     string_view const &text,
     source_location    current = source_location::current())
   {
@@ -42,7 +42,7 @@ export
     }
   }
 
-  void constexpr Log(
+  void inline Log(
     string_view const &text,
     source_location    current = source_location::current())
   {
@@ -57,7 +57,7 @@ export
         .c_str());
   }
 
-  void constexpr Debug(
+  void inline Debug(
     string_view const &text,
     source_location    current = source_location::current())
   {

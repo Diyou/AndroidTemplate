@@ -1,0 +1,43 @@
+name: Windows MSVC
+
+on:
+  workflow_dispatch:
+
+env:
+  SDL_VERSION: 3.2.14
+  CMAKE_VERSION: 4.0.2
+  NINJA_VERSION: 1.12.1
+  BUILD_TYPE: debug
+
+jobs:
+  build:
+    runs-on: windows-2025
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          submodules: true
+
+      - name: Setup VS Environment
+        uses: ilammy/msvc-dev-cmd@v1
+        with:
+          vsversion: 2022
+
+      - name: Get CMake and Ninja
+        uses: lukka/get-cmake@latest
+        with:
+          cmakeVersion: ${{env.CMAKE_VERSION}}
+          ninjaVersion: ${{env.NINJA_VERSION}}
+
+      - name: Setup SDL sdk
+        uses: libsdl-org/setup-sdl@main
+        with:
+          version: ${{env.SDL_VERSION}}
+          build-type: Release
+          pre-release: false
+
+      - name: CMake Configuration
+        run: cmake --preset=${{env.BUILD_TYPE}}
+
+      - name: CMake Build
+        run: cmake --build --preset=${{env.BUILD_TYPE}}

@@ -1,0 +1,46 @@
+name: macOS clang
+
+on:
+  workflow_dispatch:
+
+env:
+  LLVM_VERSION: 20
+  SDL_VERSION: 3.2.14
+  BUILD_TYPE: debug
+
+jobs:
+  build:
+    runs-on: macos-15
+
+    steps:
+      - name: Install LLVM via Homebrew
+        run: |
+          brew upgrade
+          brew install llvm@${{env.LLVM_VERSION}}
+          LLVM_ROOT=$(brew --prefix llvm@${{env.LLVM_VERSION}})
+          LDFLAGS="-L${LLVM_ROOT}/lib -L${LLVM_ROOT}/lib/c++ -L${LLVM_ROOT}/lib/unwind -lunwind"
+          CPPFLAGS="-I${LLVM_ROOT}/include"
+          echo "PATH=$LLVM_ROOT/bin:$PATH" >> /Users/$(whoami)/.bash_profile
+          echo "PATH=$LLVM_ROOT/bin:$PATH" >> $GITHUB_ENV
+          echo "LLVM_ROOT=$LLVM_ROOT" >> $GITHUB_ENV
+          echo "LDFLAGS=$LDFLAGS" >> $GITHUB_ENV
+          echo "CPPFLAGS=$CPPFLAGS" >> $GITHUB_ENV
+          echo "CC=$LLVM_ROOT/bin/clang" >> $GITHUB_ENV
+          echo "CXX=$LLVM_ROOT/bin/clang++" >> $GITHUB_ENV
+
+      - uses: actions/checkout@v4
+        with:
+          submodules: true
+
+      - name: Setup SDL sdk
+        uses: libsdl-org/setup-sdl@main
+        with:
+          version: ${{env.SDL_VERSION}}
+          build-type: Release
+          pre-release: false
+
+      - name: CMake Configuration
+        run: cmake --preset=${{env.BUILD_TYPE}}
+
+      - name: CMake Build
+        run: cmake --build --preset=${{env.BUILD_TYPE}}
