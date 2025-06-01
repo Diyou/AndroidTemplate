@@ -1,0 +1,40 @@
+name: Linux CI
+
+on:
+  workflow_dispatch:
+
+env:
+  CMAKE_VERSION: 4.0.2
+  NINJA_VERSION: 1.12.1
+
+jobs:
+  build:
+    runs-on: ubuntu-24.04
+    container:
+      image: fedora:42
+
+    steps:
+      - name: Update and install dependencies
+        run: |
+          sudo dnf update -y
+          sudo dnf install -y   \
+           git                  \
+           unzip                \
+           gcc gcc-c++          \
+           SDL3-devel
+
+      - name: Get CMake and Ninja
+        uses: lukka/get-cmake@latest
+        with:
+          cmakeVersion: ${{env.CMAKE_VERSION}}
+          ninjaVersion: ${{env.NINJA_VERSION}}
+
+      - uses: actions/checkout@v4
+        with:
+          submodules: true
+
+      - name: CMake Configuration
+        run: cmake --preset=debug
+
+      - name: CMake Build
+        run: cmake --build --preset=debug
