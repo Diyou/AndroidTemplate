@@ -18,24 +18,21 @@ import dotcmake;
 
 using namespace std;
 
-void constexpr Log(string const &view)
-{
-  SDL_Log("%s", view.c_str());
-}
-
 template< auto F >
 void constexpr Log(
   string_view const &text,
   source_location    current = source_location::current())
 {
   using VoidFunction = void (*)();
-  Log(format(
-    "[{}:{}][{}({})] {}\n",
-    current.line(),
-    current.column(),
-    VoidFunction(F),
-    dotcmake::GetFunctionName< F >(),
-    text));
+  SDL_Log(
+    "%s",
+    format(
+      "[{}:{}][{}({})]\t{}\n",
+      current.line(),
+      current.column(),
+      VoidFunction(F),
+      dotcmake::GetFunctionName< F >(),
+      text));
 }
 
 template< auto F >
@@ -52,12 +49,15 @@ void constexpr Log(
   string_view const &text,
   source_location    current = source_location::current())
 {
-  Log(format(
-    "[{}:{}][{}]\t{}\n",
-    current.line(),
-    current.column(),
-    current.function_name(),
-    text));
+  SDL_Log(
+    "%s",
+    format(
+      "[{}:{}][{}]\t{}\n",
+      current.line(),
+      current.column(),
+      current.function_name(),
+      text)
+      .c_str());
 }
 
 void constexpr Debug(
@@ -128,21 +128,33 @@ struct AppState
 
     SDL_Rect bounds{0, 0, 600, 800};
     if constexpr (dotcmake::Platform::MOBILE) {
-      if (!SDL_GetDisplayBounds(SDL_GetPrimaryDisplay(), &bounds)) {
+      auto const primaryDisplay = SDL_GetPrimaryDisplay();
+      if (primaryDisplay == 0 || !SDL_GetDisplayBounds(primaryDisplay, &bounds))
+      {
+        SDL_LogError(
+          SDL_LOG_CATEGORY_ERROR,
+          "SDL_GetDisplayBounds failed: %s",
+          SDL_GetError());
         return SDL_APP_FAILURE;
       }
     }
 
-    Log(format("Bound ({}:{})\n", bounds.w, bounds.h));
     auto *window = SDL_CreateWindow(
       arg0.filename().c_str(), bounds.w, bounds.h, SDL_WINDOW_RESIZABLE);
 
     if (window == nullptr) {
+      SDL_LogError(
+        SDL_LOG_CATEGORY_ERROR, "SDL_CreateWindow failed: %s", SDL_GetError());
       return SDL_APP_FAILURE;
     }
 
     auto *renderer = SDL_CreateRenderer(window, nullptr);
     if (renderer == nullptr) {
+      SDL_LogError(
+        SDL_LOG_CATEGORY_ERROR,
+        "SDL_CreateRenderer failed: %s",
+        SDL_GetError());
+
       return SDL_APP_FAILURE;
     }
 
