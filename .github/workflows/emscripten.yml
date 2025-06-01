@@ -4,14 +4,22 @@ on:
   workflow_dispatch:
 
 env:
+  EMSCRIPTEN_VERSION: 4.0.9
   CMAKE_VERSION: 4.0.2
   NINJA_VERSION: 1.12.1
+  BUILD_TYPE: debug
+  EMSDK: ${{github.workspace}}/.cache/emsdk
 
 jobs:
   build:
     runs-on: ubuntu-24.04
 
     steps:
+      - uses: mymindstorm/setup-emsdk@v14
+        with:
+          version: ${{env.EMSCRIPTEN_VERSION}}
+          actions-cache-folder: ${{env.EMSDK}}
+
       - name: Get CMake and Ninja
         uses: lukka/get-cmake@latest
         with:
@@ -23,7 +31,9 @@ jobs:
           submodules: true
 
       - name: CMake Configuration
-        run: cmake --preset=debug
+        env:
+          EMSCRIPTEN: ${{env.EMSDK}}/upstream/emscripten
+        run: cmake --preset=${{env.BUILD_TYPE}}::emscripten
 
       - name: CMake Build
-        run: cmake --build --preset=debug
+        run: cmake --build --preset=${{env.BUILD_TYPE}}::emscripten

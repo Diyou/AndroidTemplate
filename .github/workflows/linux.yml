@@ -6,6 +6,7 @@ on:
 env:
   CMAKE_VERSION: 4.0.2
   NINJA_VERSION: 1.12.1
+  BUILD_TYPE: debug
 
 jobs:
   build:
@@ -34,7 +35,7 @@ jobs:
           submodules: true
 
       - name: CMake Configuration
-        run: cmake --preset=debug
+        run: cmake --preset=${{env.BUILD_TYPE}}
 
       - name: CMake Build
-        run: cmake --build --preset=debug
+        run: cmake --build --preset=${{env.BUILD_TYPE}}

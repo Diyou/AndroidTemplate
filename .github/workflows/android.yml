@@ -6,6 +6,7 @@ on:
 env:
   CMAKE_VERSION: 4.0.2
   NDK_VERSION: 29.0.13113456
+  BUILD_TYPE: debug
 
 jobs:
   build:
@@ -31,7 +32,7 @@ jobs:
           submodules: true
 
       - name: CMake Configuration
-        run: cmake --preset=debug::android
+        run: cmake --preset=${{env.BUILD_TYPE}}::android
 
       - name: CMake Build
-        run: cmake --build --preset=debug::android
+        run: cmake --build --preset=${{env.BUILD_TYPE}}::android

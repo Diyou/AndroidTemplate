@@ -8,6 +8,7 @@ env:
   SDL_VERSION: 3.2.14
   CMAKE_VERSION: 4.0.2
   NINJA_VERSION: 1.12.1
+  BUILD_TYPE: debug
 
 jobs:
   build:
@@ -16,16 +17,11 @@ jobs:
     steps:
       - name: Install LLVM
         run: |
-          brew install llvm@${{env.LLVM_VERSION}}
+          brew update
+          brew install cmake ninja llvm@${{env.LLVM_VERSION}}
           echo "/usr/local/opt/llvm@${{env.LLVM_VERSION}}/bin" >> $GITHUB_PATH
           echo "LDFLAGS=-L/usr/local/opt/llvm@${{env.LLVM_VERSION}}/lib -Wl,-rpath,/usr/local/opt/llvm@${{env.LLVM_VERSION}}/lib" >> $GITHUB_ENV
           echo "CPPFLAGS=-I/usr/local/opt/llvm@${{env.LLVM_VERSION}}/include" >> $GITHUB_ENV
-
-      - name: Get CMake and Ninja
-        uses: lukka/get-cmake@latest
-        with:
-          cmakeVersion: ${{env.CMAKE_VERSION}}
-          ninjaVersion: ${{env.NINJA_VERSION}}
 
       - name: Setup SDL sdk
         uses: libsdl-org/setup-sdl@main
@@ -37,7 +33,7 @@ jobs:
           submodules: true
 
       - name: CMake Configuration
-        run: cmake --preset=debug
+        run: cmake --preset=${{env.BUILD_TYPE}}
 
       - name: CMake Build
-        run: cmake --build --preset=debug
+        run: cmake --build --preset=${{env.BUILD_TYPE}}
