@@ -18,7 +18,6 @@ jobs:
         uses: KyleMayes/install-llvm-action@v2
         with:
           version: ${{env.LLVM_VERSION}}
-          env: true
 
       - name: Get CMake and Ninja
         uses: lukka/get-cmake@latest
