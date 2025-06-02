@@ -21,6 +21,7 @@ jobs:
           LDFLAGS="-L${LLVM_ROOT}/lib -L${LLVM_ROOT}/lib/c++ -L${LLVM_ROOT}/lib/unwind -lunwind"
           CPPFLAGS="-I${LLVM_ROOT}/include"
           echo "PATH=$LLVM_ROOT/bin:$PATH" >> /Users/runner/.bash_profile
+          echo "PATH=$LLVM_ROOT/bin:$PATH" >> $GITHUB_ENV
           echo "LLVM_ROOT=$LLVM_ROOT" >> $GITHUB_ENV
           echo "LDFLAGS=$LDFLAGS" >> $GITHUB_ENV
           echo "CPPFLAGS=$CPPFLAGS" >> $GITHUB_ENV
