@@ -25,6 +25,8 @@ jobs:
           echo "LLVM_ROOT=$LLVM_ROOT" >> $GITHUB_ENV
           echo "LDFLAGS=$LDFLAGS" >> $GITHUB_ENV
           echo "CPPFLAGS=$CPPFLAGS" >> $GITHUB_ENV
+          echo "CC=$LLVM_ROOT/bin/clang" >> $GITHUB_ENV
+          echo "CXX=$LLVM_ROOT/bin/clang++" >> $GITHUB_ENV
           echo "LDFLAGS -> $LDFLAGS !!!"
           echo "CPPFLAGS -> $CPPFLAGS !!!"
           echo "LLVM_ROOT -> $LLVM_ROOT !!!"
@@ -36,11 +38,6 @@ jobs:
 
       - name: Setup SDL sdk
         uses: libsdl-org/setup-sdl@main
-        env:
-          LDFLAGS: $LDFLAGS
-          CPPFLAGS: $CPPFLAGS
-          CC: $LLVM_ROOT/bin/clang
-          CXX: $LLVM_ROOT/bin/clang++
         with:
           version: ${{env.SDL_VERSION}}
           build-type: Release
@@ -51,11 +48,6 @@ jobs:
           submodules: true
 
       - name: CMake Configuration
-        env:
-          LDFLAGS: $LDFLAGS
-          CPPFLAGS: $CPPFLAGS
-          CC: $LLVM_ROOT/bin/clang
-          CXX: $LLVM_ROOT/bin/clang++
         run: cmake --preset=${{env.BUILD_TYPE}}
 
       - name: CMake Build
