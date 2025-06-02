@@ -18,6 +18,8 @@ jobs:
         with:
           version: ${{env.LLVM_VERSION}}
           arch: arm64
+          directory: /llvm
+          env: true
 
       - uses: actions/checkout@v4
         with:
