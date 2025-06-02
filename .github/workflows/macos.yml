@@ -38,10 +38,12 @@ jobs:
         env:
           LDFLAGS: ${{github.env.LDFLAGS}}
           CPPFLAGS: ${{github.env.CPPFLAGS}}
-          CC: ${{github.env.CPPFLAGS}}/bin/clang
-          CXX: ${{github.env.CPPFLAGS}}/bin/clang++
+          CC: ${{github.env.LLVM_ROOT}}/bin/clang
+          CXX: ${{github.env.LLVM_ROOT}}/bin/clang++
         with:
           version: ${{env.SDL_VERSION}}
+          build-type: Release
+          add-to-environment: true
 
       - uses: actions/checkout@v4
         with:
@@ -51,8 +53,8 @@ jobs:
         env:
           LDFLAGS: ${{github.env.LDFLAGS}}
           CPPFLAGS: ${{github.env.CPPFLAGS}}
-          CC: ${{github.env.CPPFLAGS}}/bin/clang
-          CXX: ${{github.env.CPPFLAGS}}/bin/clang++
+          CC: ${{github.env.LLVM_ROOT}}/bin/clang
+          CXX: ${{github.env.LLVM_ROOT}}/bin/clang++
         run: cmake --preset=${{env.BUILD_TYPE}}
 
       - name: CMake Build
