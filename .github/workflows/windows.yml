@@ -36,8 +36,8 @@ jobs:
           build-type: Release
           pre-release: false
 
-      - name: Run CMake Configuration and Build
-        uses: lukka/run-cmake@v10
-        with:
-          configurePreset: ${{env.BUILD_TYPE}}
-          buildPreset: ${{env.BUILD_TYPE}}
+      - name: CMake Configuration
+        run: cmake --preset=${{env.BUILD_TYPE}}
+
+      - name: CMake Build
+        run: cmake --build --preset=${{env.BUILD_TYPE}}
