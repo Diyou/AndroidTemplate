@@ -18,7 +18,7 @@ jobs:
           brew upgrade
           brew install llvm@${{env.LLVM_VERSION}}
           LLVM_ROOT=$(brew --prefix llvm@${{env.LLVM_VERSION}})
-          LDFLAGS="-L${LLVM_ROOT}/lib -L${LLVM_ROOT}/lib/c++ -L${LLVM_ROOT}/lib/unwind -lunwind"
+          LDFLAGS="-L${LLVM_ROOT}/lib -Wl,-rpath,${LLVM_ROOT}/lib -L${LLVM_ROOT}/lib/c++ -L${LLVM_ROOT}/lib/unwind -lunwind"
           CPPFLAGS="-I${LLVM_ROOT}/include"
           echo "PATH=$LLVM_ROOT/bin:$PATH" >> /Users/$(whoami)/.bash_profile
           echo "PATH=$LLVM_ROOT/bin:$PATH" >> $GITHUB_ENV
@@ -27,6 +27,7 @@ jobs:
           echo "CPPFLAGS=$CPPFLAGS" >> $GITHUB_ENV
           echo "CC=$LLVM_ROOT/bin/clang" >> $GITHUB_ENV
           echo "CXX=$LLVM_ROOT/bin/clang++" >> $GITHUB_ENV
+          echo "CXXFLAGS=-I$LLVM_ROOT/include/c++/v1" >> $GITHUB_ENV
 
       - uses: actions/checkout@v4
         with:
