@@ -17,10 +17,11 @@ jobs:
         run: |
           brew update
           brew install cmake llvm@${{env.LLVM_VERSION}}
-          echo "$(brew --prefix llvm@${{env.LLVM_VERSION}})/bin" >> $GITHUB_PATH
           LLVM_PREFIX=$(brew --prefix llvm@${{env.LLVM_VERSION}})
+          echo "$LLVM_PREFIX/bin" >> $GITHUB_PATH
           echo "Homebrew LLVM prefix: $LLVM_PREFIX"
           echo "LLVM_BIN_PATH=$LLVM_PREFIX/bin" >> $GITHUB_ENV
+          echo LDFLAGS="-L$LLVM_PREFIX/lib/c++ -L$LLVM_PREFIX/lib/unwind -lunwind" >> $GITHUB_ENV
 
       - name: Verify Clang Version
         run: |
@@ -42,6 +43,7 @@ jobs:
         env:
           CC: '${{github.env.LLVM_BIN_PATH}}/clang'
           CXX: '${{github.env.LLVM_BIN_PATH}}/clang++'
+          LDFLAGS: ${{github.env.LDFLAGS}}
         run: cmake --preset=${{env.BUILD_TYPE}}
 
       - name: CMake Build
