@@ -19,9 +19,9 @@ jobs:
           submodules: true
 
       - name: Setup VS Environment
-        shell: cmd
-        run: |
-          call "C:\Program Files\Microsoft Visual Studio\2022\Enterprise\VC\Auxiliary\Build\vcvars64.bat"
+        uses: ilammy/msvc-dev-cmd@v1
+        with:
+          vsversion: 2022
 
       - name: Get CMake and Ninja
         uses: lukka/get-cmake@latest
