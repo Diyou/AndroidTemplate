@@ -18,6 +18,11 @@ jobs:
         with:
           submodules: true
 
+      - name: Test Environment
+        run: |
+          cmake --version
+          ninja --version
+
       - name: Get CMake and Ninja
         uses: lukka/get-cmake@latest
         with:
