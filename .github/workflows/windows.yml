@@ -14,26 +14,25 @@ jobs:
     runs-on: windows-2025
 
     steps:
+      - name: Setup SDL sdk
+        uses: libsdl-org/setup-sdl@main
+        with:
+          version: ${{env.SDL_VERSION}}
+          build-type: Release
+          pre-release: false
+
+      - uses: actions/checkout@v4
+        with:
+          submodules: true
+
       - name: Get CMake and Ninja
         uses: lukka/get-cmake@latest
         with:
           cmakeVersion: ${{env.CMAKE_VERSION}}
           ninjaVersion: ${{env.NINJA_VERSION}}
 
-      - name: Setup SDL sdk
-        uses: libsdl-org/setup-sdl@main
+      - name: Run CMake Configuration and Build
+        uses: lukka/run-cmake@v10
         with:
-          version: ${{env.SDL_VERSION}}
-
-      - uses: actions/checkout@v4
-        with:
-          submodules: true
-
-      - name: CMake Configuration
-        shell: cmd
-        run: |
-          call "C:\Program Files\Microsoft Visual Studio\2022\Enterprise\VC\Auxiliary\Build\vcvars64.bat"  
-          cmake --preset=${{env.BUILD_TYPE}}
-
-      - name: CMake Build
-        run: cmake --build --preset=${{env.BUILD_TYPE}}
+          configurePreset: ${{env.BUILD_TYPE}}
+          buildPreset: ${{env.BUILD_TYPE}}

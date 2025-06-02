@@ -4,7 +4,7 @@ on:
   workflow_dispatch:
 
 env:
-  LLVM_VERSION: 19
+  LLVM_VERSION: 20
   SDL_VERSION: 3.2.14
   BUILD_TYPE: debug
 
@@ -33,7 +33,7 @@ jobs:
         with:
           version: ${{env.SDL_VERSION}}
           build-type: Release
-          add-to-environment: true
+          pre-release: false
 
       - uses: actions/checkout@v4
         with:

@@ -14,15 +14,15 @@ jobs:
     container: emscripten/emsdk:4.0.9
 
     steps:
+      - uses: actions/checkout@v4
+        with:
+          submodules: true
+
       - name: Get CMake and Ninja
         uses: lukka/get-cmake@latest
         with:
           cmakeVersion: ${{env.CMAKE_VERSION}}
           ninjaVersion: ${{env.NINJA_VERSION}}
-
-      - uses: actions/checkout@v4
-        with:
-          submodules: true
 
       - name: CMake Configuration
         env:
