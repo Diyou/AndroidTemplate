@@ -15,18 +15,24 @@ jobs:
     steps:
       - name: Install LLVM via Homebrew
         run: |
-          brew upgrade
+          brew upgrade cmake
           brew install llvm@${{env.LLVM_VERSION}}
           LLVM_ROOT=$(brew --prefix llvm@${{env.LLVM_VERSION}})
-          LDFLAGS="-L${LLVM_ROOT}/lib -L${LLVM_ROOT}/lib/c++ -L${LLVM_ROOT}/lib/unwind -lunwind"
-          CPPFLAGS="-I${LLVM_ROOT}/include"
           echo "PATH=$LLVM_ROOT/bin:$PATH" >> /Users/$(whoami)/.bash_profile
           echo "PATH=$LLVM_ROOT/bin:$PATH" >> $GITHUB_ENV
           echo "LLVM_ROOT=$LLVM_ROOT" >> $GITHUB_ENV
-          echo "LDFLAGS=$LDFLAGS" >> $GITHUB_ENV
-          echo "CPPFLAGS=$CPPFLAGS" >> $GITHUB_ENV
           echo "CC=$LLVM_ROOT/bin/clang" >> $GITHUB_ENV
           echo "CXX=$LLVM_ROOT/bin/clang++" >> $GITHUB_ENV
+          echo "LDFLAGS=                      \
+            -L${LLVM_ROOT}/lib                \
+            -L${LLVM_ROOT}/lib/c++            \
+            -L${LLVM_ROOT}/lib/unwind -lunwind\
+          " >> $GITHUB_ENV
+          echo "CPPFLAGS=                     \
+            -I${LLVM_ROOT}/include            \
+            -I${LLVM_ROOT}/include/c++/v1     \
+            -stdlib=libc++                    \ 
+          " >> $GITHUB_ENV
 
       - uses: actions/checkout@v4
         with:

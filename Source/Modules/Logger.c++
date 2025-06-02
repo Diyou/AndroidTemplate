@@ -9,57 +9,49 @@ export module Logger;
 #ifdef CMAKE_IMPORT_STD
 import std;
 #endif
+
 import dotcmake;
 
 using namespace std;
 
+using location = source_location;
+
 export
 {
   template< auto F >
-  void inline Log(
-    string_view const &text,
-    source_location    current = source_location::current())
+  void inline Log(string const &text, location current = location::current())
   {
     using VoidFunction = void (*)();
-    SDL_Log(
-      "%s",
-      format(
-        "[{}:{}][{}({})]\t{}\n",
-        current.line(),
-        current.column(),
-        VoidFunction(F),
-        dotcmake::GetFunctionName< F >(),
-        text));
+    auto const print   = format(
+      "[{}:{}][{}({})] {}\n",
+      current.line(),
+      current.column(),
+      VoidFunction(F),
+      dotcmake::GetFunctionName< F >(),
+      text);
+    SDL_Log("%s", print);
+  }
+
+  void inline Log(string const &text, location current = location::current())
+  {
+    auto const print = format(
+      "[{}:{}][{}] {}\n",
+      current.line(),
+      current.column(),
+      current.function_name(),
+      text);
+    SDL_Log("%s", print.c_str());
   }
 
   template< auto F >
-  void inline Debug(
-    string_view const &text,
-    source_location    current = source_location::current())
+  void inline Debug(string const &text, location current = location::current())
   {
     if constexpr (dotcmake::Compiler::DEBUG) {
       Log< F >(text, current);
     }
   }
 
-  void inline Log(
-    string_view const &text,
-    source_location    current = source_location::current())
-  {
-    SDL_Log(
-      "%s",
-      format(
-        "[{}:{}][{}]\t{}\n",
-        current.line(),
-        current.column(),
-        current.function_name(),
-        text)
-        .c_str());
-  }
-
-  void inline Debug(
-    string_view const &text,
-    source_location    current = source_location::current())
+  void inline Debug(string const &text, location current = location::current())
   {
     if constexpr (dotcmake::Compiler::DEBUG) {
       Log(text, current);
