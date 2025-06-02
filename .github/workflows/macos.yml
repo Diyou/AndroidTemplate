@@ -13,22 +13,16 @@ jobs:
     runs-on: macos-15
 
     steps:
-      - name: Install LLVM
+      - name: Install LLVM via Homebrew
         run: |
           brew update
-          brew install cmake llvm@${{env.LLVM_VERSION}}
-          LLVM_PREFIX=$(brew --prefix llvm@${{env.LLVM_VERSION}})
-          echo "$LLVM_PREFIX/bin" >> $GITHUB_PATH
-          echo "Homebrew LLVM prefix: $LLVM_PREFIX"
-          echo "LLVM_BIN_PATH=$LLVM_PREFIX/bin" >> $GITHUB_ENV
-          echo LDFLAGS="-L$LLVM_PREFIX/lib/c++ -L$LLVM_PREFIX/lib/unwind -lunwind" >> $GITHUB_ENV
-
-      - name: Verify Clang Version
+          brew install llvm@${{env.LLVM_VERSION}}
+          echo "PATH=$(brew --prefix llvm@${{env.LLVM_VERSION}})/bin:$PATH" >> $GITHUB_ENV
+          echo "LLVM_DIR=$(brew --prefix llvm@${{env.LLVM_VERSION}})/lib/cmake/llvm" >> $GITHUB_ENV
+      - name: Verify LLVM version
         run: |
-          echo "Checking Clang version using direct path from Homebrew..."
-          "$LLVM_BIN_PATH/clang" --version
-          echo "Checking PATH's Clang version (for comparison, might still be AppleClang initially)"
           clang --version
+          llvm-config --version
 
       - name: Setup SDL sdk
         uses: libsdl-org/setup-sdl@main
@@ -40,10 +34,6 @@ jobs:
           submodules: true
 
       - name: CMake Configuration
-        env:
-          CC: '${{github.env.LLVM_BIN_PATH}}/clang'
-          CXX: '${{github.env.LLVM_BIN_PATH}}/clang++'
-          LDFLAGS: ${{github.env.LDFLAGS}}
         run: cmake --preset=${{env.BUILD_TYPE}}
 
       - name: CMake Build
