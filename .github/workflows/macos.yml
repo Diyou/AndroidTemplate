@@ -15,7 +15,7 @@ jobs:
     steps:
       - name: Install LLVM via Homebrew
         run: |
-          brew update
+          brew upgrade
           brew install llvm@${{env.LLVM_VERSION}}
           echo "PATH=$(brew --prefix llvm@${{env.LLVM_VERSION}})/bin:$PATH" >> $GITHUB_ENV
           echo "LLVM_DIR=$(brew --prefix llvm@${{env.LLVM_VERSION}})/lib/cmake/llvm" >> $GITHUB_ENV
