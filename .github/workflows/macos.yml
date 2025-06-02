@@ -20,7 +20,7 @@ jobs:
           LLVM_ROOT=$(brew --prefix llvm@${{env.LLVM_VERSION}})
           LDFLAGS="-L${LLVM_ROOT}/lib -L${LLVM_ROOT}/lib/c++ -L${LLVM_ROOT}/lib/unwind -lunwind"
           CPPFLAGS="-I${LLVM_ROOT}/include"
-          echo "PATH=$LLVM_ROOT/bin:$PATH" >> /Users/runner/.bash_profile
+          echo "PATH=$LLVM_ROOT/bin:$PATH" >> /Users/$(whoami)/.bash_profile
           echo "PATH=$LLVM_ROOT/bin:$PATH" >> $GITHUB_ENV
           echo "LLVM_ROOT=$LLVM_ROOT" >> $GITHUB_ENV
           echo "LDFLAGS=$LDFLAGS" >> $GITHUB_ENV
@@ -28,6 +28,7 @@ jobs:
           echo "LDFLAGS -> $LDFLAGS !!!"
           echo "CPPFLAGS -> $CPPFLAGS !!!"
           echo "LLVM_ROOT -> $LLVM_ROOT !!!"
+          echo "User -> $(whoami)"
       - name: Verify LLVM version
         run: |
           clang --version
@@ -36,10 +37,10 @@ jobs:
       - name: Setup SDL sdk
         uses: libsdl-org/setup-sdl@main
         env:
-          LDFLAGS: ${{github.env.LDFLAGS}}
-          CPPFLAGS: ${{github.env.CPPFLAGS}}
-          CC: ${{github.env.LLVM_ROOT}}/bin/clang
-          CXX: ${{github.env.LLVM_ROOT}}/bin/clang++
+          LDFLAGS: $LDFLAGS
+          CPPFLAGS: $CPPFLAGS
+          CC: $LLVM_ROOT/bin/clang
+          CXX: $LLVM_ROOT/bin/clang++
         with:
           version: ${{env.SDL_VERSION}}
           build-type: Release
@@ -51,10 +52,10 @@ jobs:
 
       - name: CMake Configuration
         env:
-          LDFLAGS: ${{github.env.LDFLAGS}}
-          CPPFLAGS: ${{github.env.CPPFLAGS}}
-          CC: ${{github.env.LLVM_ROOT}}/bin/clang
-          CXX: ${{github.env.LLVM_ROOT}}/bin/clang++
+          LDFLAGS: $LDFLAGS
+          CPPFLAGS: $CPPFLAGS
+          CC: $LLVM_ROOT/bin/clang
+          CXX: $LLVM_ROOT/bin/clang++
         run: cmake --preset=${{env.BUILD_TYPE}}
 
       - name: CMake Build
