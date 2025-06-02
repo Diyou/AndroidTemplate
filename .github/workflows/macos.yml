@@ -28,16 +28,16 @@ jobs:
           echo "CC=$LLVM_ROOT/bin/clang" >> $GITHUB_ENV
           echo "CXX=$LLVM_ROOT/bin/clang++" >> $GITHUB_ENV
 
+      - uses: actions/checkout@v4
+        with:
+          submodules: true
+
       - name: Setup SDL sdk
         uses: libsdl-org/setup-sdl@main
         with:
           version: ${{env.SDL_VERSION}}
           build-type: Release
           pre-release: false
-
-      - uses: actions/checkout@v4
-        with:
-          submodules: true
 
       - name: CMake Configuration
         run: cmake --preset=${{env.BUILD_TYPE}}

@@ -24,10 +24,10 @@ jobs:
           cmakeVersion: ${{env.CMAKE_VERSION}}
           ninjaVersion: ${{env.NINJA_VERSION}}
 
-      - name: CMake Configuration
+      - name: Run CMake Configuration and Build
+        uses: lukka/run-cmake@v10
         env:
           EMSCRIPTEN_ROOT: /emsdk/upstream/emscripten
-        run: cmake --preset=${{env.BUILD_TYPE}}::emscripten
-
-      - name: CMake Build
-        run: cmake --build --preset=${{env.BUILD_TYPE}}::emscripten
+        with:
+          configurePreset: ${{env.BUILD_TYPE}}::emscripten
+          buildPreset: ${{env.BUILD_TYPE}}::emscripten
