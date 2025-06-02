@@ -4,7 +4,7 @@ on:
   workflow_dispatch:
 
 env:
-  LLVM_VERSION: 20.1.3
+  LLVM_VERSION: 20
   SDL_VERSION: 3.2.14
   BUILD_TYPE: debug
 
@@ -13,13 +13,20 @@ jobs:
     runs-on: macos-15
 
     steps:
-      - name: Install LLVM and Clang
-        uses: KyleMayes/install-llvm-action@v2
-        with:
-          version: ${{env.LLVM_VERSION}}
-          arch: arm64
-          directory: ${{github.workspace}}/.llvm
-          env: true
+      - name: Install LLVM via Homebrew
+        run: |
+          brew upgrade
+          brew install llvm@${{env.LLVM_VERSION}}
+          LLVM_ROOT=$(brew --prefix llvm@${{env.LLVM_VERSION}})
+          LDFLAGS="-L${LLVM_ROOT}/lib -L${LLVM_ROOT}/lib/c++ -L${LLVM_ROOT}/lib/unwind -lunwind"
+          CPPFLAGS="-I${LLVM_ROOT}/include"
+          echo "PATH=$LLVM_ROOT/bin:$PATH" >> /Users/$(whoami)/.bash_profile
+          echo "PATH=$LLVM_ROOT/bin:$PATH" >> $GITHUB_ENV
+          echo "LLVM_ROOT=$LLVM_ROOT" >> $GITHUB_ENV
+          echo "LDFLAGS=$LDFLAGS" >> $GITHUB_ENV
+          echo "CPPFLAGS=$CPPFLAGS" >> $GITHUB_ENV
+          echo "CC=$LLVM_ROOT/bin/clang" >> $GITHUB_ENV
+          echo "CXX=$LLVM_ROOT/bin/clang++" >> $GITHUB_ENV
 
       - uses: actions/checkout@v4
         with:
