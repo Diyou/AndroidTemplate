@@ -18,12 +18,15 @@ jobs:
           brew upgrade
           brew install llvm@${{env.LLVM_VERSION}}
           LLVM_ROOT=$(brew --prefix llvm@${{env.LLVM_VERSION}})
-          echo "Root -> $LLVM_ROOT !!!"
           LDFLAGS="-L${LLVM_ROOT}/lib -L${LLVM_ROOT}/lib/c++ -L${LLVM_ROOT}/lib/unwind -lunwind"
           CPPFLAGS="-I${LLVM_ROOT}/include"
-          echo "PATH=$LLVM_ROOT/bin:$PATH" >> $GITHUB_ENV
+          echo "PATH=$LLVM_ROOT/bin:$PATH" >> /Users/runner/.bash_profile
+          echo "LLVM_ROOT=$LLVM_ROOT" >> $GITHUB_ENV
           echo "LDFLAGS=$LDFLAGS" >> $GITHUB_ENV
           echo "CPPFLAGS=$CPPFLAGS" >> $GITHUB_ENV
+          echo "LDFLAGS -> $LDFLAGS !!!"
+          echo "CPPFLAGS -> $CPPFLAGS !!!"
+          echo "LLVM_ROOT -> $LLVM_ROOT !!!"
       - name: Verify LLVM version
         run: |
           clang --version
@@ -31,6 +34,11 @@ jobs:
 
       - name: Setup SDL sdk
         uses: libsdl-org/setup-sdl@main
+        env:
+          LDFLAGS: ${{github.env.LDFLAGS}}
+          CPPFLAGS: ${{github.env.CPPFLAGS}}
+          CC: ${{github.env.CPPFLAGS}}/bin/clang
+          CXX: ${{github.env.CPPFLAGS}}/bin/clang++
         with:
           version: ${{env.SDL_VERSION}}
 
@@ -39,6 +47,11 @@ jobs:
           submodules: true
 
       - name: CMake Configuration
+        env:
+          LDFLAGS: ${{github.env.LDFLAGS}}
+          CPPFLAGS: ${{github.env.CPPFLAGS}}
+          CC: ${{github.env.CPPFLAGS}}/bin/clang
+          CXX: ${{github.env.CPPFLAGS}}/bin/clang++
         run: cmake --preset=${{env.BUILD_TYPE}}
 
       - name: CMake Build
