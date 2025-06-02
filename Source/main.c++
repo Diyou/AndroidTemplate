@@ -70,7 +70,7 @@ struct AppState
     }
 
     auto *window = SDL_CreateWindow(
-      arg0.filename().c_str(),
+      arg0.filename().string().c_str(),
       bounds.w,
       bounds.h,
       dotcmake::Platform::MOBILE
