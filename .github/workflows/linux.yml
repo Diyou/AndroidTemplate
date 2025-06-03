@@ -18,11 +18,13 @@ jobs:
       - name: Update and install dependencies
         run: |
           sudo dnf update -y
-          sudo dnf install -y   \
-           git                  \
-           unzip                \
-           gcc gcc-c++          \
-           SDL3-devel
+          packages=(
+              git                  
+              unzip                
+              gcc gcc-c++        
+              SDL3-devel
+          )
+          sudo dnf install -y ${packages[@]}
 
       - uses: actions/checkout@v4
         with:

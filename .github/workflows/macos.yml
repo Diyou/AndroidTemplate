@@ -13,26 +13,8 @@ jobs:
     runs-on: macos-15
 
     steps:
-      - name: Install LLVM via Homebrew
-        run: |
-          brew upgrade cmake
-          brew install llvm@${{env.LLVM_VERSION}}
-          LLVM_ROOT=$(brew --prefix llvm@${{env.LLVM_VERSION}})
-          echo "PATH=$LLVM_ROOT/bin:$PATH" >> /Users/$(whoami)/.bash_profile
-          echo "PATH=$LLVM_ROOT/bin:$PATH" >> $GITHUB_ENV
-          echo "LLVM_ROOT=$LLVM_ROOT" >> $GITHUB_ENV
-          echo "CC=$LLVM_ROOT/bin/clang" >> $GITHUB_ENV
-          echo "CXX=$LLVM_ROOT/bin/clang++" >> $GITHUB_ENV
-          echo "LDFLAGS=                      \
-            -L${LLVM_ROOT}/lib                \
-            -L${LLVM_ROOT}/lib/c++            \
-            -L${LLVM_ROOT}/lib/unwind -lunwind\
-          " >> $GITHUB_ENV
-          echo "CPPFLAGS=                     \
-            -I${LLVM_ROOT}/include            \
-            -I${LLVM_ROOT}/include/c++/v1     \
-            -stdlib=libc++                    \ 
-          " >> $GITHUB_ENV
+      - name: Switch Xcode
+        run: sudo xcode-select -s /Applications/Xcode_16.4.app
 
       - uses: actions/checkout@v4
         with:
