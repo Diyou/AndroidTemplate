@@ -15,17 +15,19 @@ import std;
 #endif
 
 import dotcmake;
-import Logger;
-import Events;
-import Windows;
 
-using Window = Windows::Default;
+import Windows;
+import Events;
+
+export using Window_Type = Windows::Default;
 
 using namespace std;
 
-export struct App : private GlobalEventHandler< Window >
+export struct Main;
+
+export struct App : private GlobalEventHandler< Window_Type >
 {
-  unique_ptr< Window >               mainWindow = nullptr;
+  unique_ptr< Window_Type >          mainWindow = nullptr;
 
   filesystem::path const             arg0;
   span< char * > const               args;
@@ -41,7 +43,7 @@ export struct App : private GlobalEventHandler< Window >
     return instance;
   }
 
-  static Window const *
+  static Window_Type const *
   Window()
   {
     return instance->mainWindow.get();
@@ -87,7 +89,8 @@ private:
       return SDL_APP_FAILURE;
     }
 
-    SDL_Rect bounds{0, 0, Window::DEFAULT_WIDTH, Window::DEFAULT_HEIGHT};
+    SDL_Rect bounds{
+      0, 0, Window_Type::DEFAULT_WIDTH, Window_Type::DEFAULT_HEIGHT};
 
     if constexpr (dotcmake::Platform::MOBILE) {
       auto const primaryDisplay = SDL_GetPrimaryDisplay();
@@ -102,7 +105,7 @@ private:
       }
     }
 
-    mainWindow = Window::Create(
+    mainWindow = Window_Type::Create(
       arg0.filename(),
       bounds.w,
       bounds.h,
@@ -141,13 +144,35 @@ private:
     return drivers;
   }
 
-  // Allow callbacks to Initiate the App
-  friend SDLMAIN_DECLSPEC SDL_AppResult SDLCALL
-  SDL_AppInit(void **appstate, int argc, char *argv[]);
-  friend SDLMAIN_DECLSPEC SDL_AppResult SDLCALL
-  SDL_AppEvent(void *appstate, SDL_Event *event);
-  friend SDLMAIN_DECLSPEC SDL_AppResult SDLCALL
-  SDL_AppIterate(void *appstate);
-  friend SDLMAIN_DECLSPEC void SDLCALL
-  SDL_AppQuit(void *appstate, SDL_AppResult result);
+  friend struct Main;
+};
+
+struct Main
+{
+  using Pointer = App *;
+
+  static SDL_AppResult
+  Init(void **appstate, int argc, char **argv)
+  {
+    *appstate = new App(argc, argv);
+    return Pointer(*appstate)->Init();
+  }
+
+  static SDL_AppResult
+  Event(void *appstate, SDL_Event *event)
+  {
+    return Pointer(appstate)->Event(event);
+  }
+
+  static SDL_AppResult
+  Iterate(void *appstate)
+  {
+    return Pointer(appstate)->Iterate();
+  }
+
+  static void
+  Quit(void *appstate, SDL_AppResult result)
+  {
+    delete Pointer(appstate);
+  }
 };

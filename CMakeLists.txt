@@ -14,6 +14,3 @@ project(HelloSDL
 EXE(${PROJECT_NAME} Source/main.c++)
 
 add_subdirectory(Source/Modules)
-target_link_libraries(${PROJECT_NAME}
-    ${PROJECT_NAME}::MODULES
-)
