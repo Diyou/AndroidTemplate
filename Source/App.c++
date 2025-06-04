@@ -4,10 +4,7 @@ module;
 #  include <span>
 #  include <unordered_set>
 #endif
-#define SDL_MAIN_HANDLED
-#define SDL_MAIN_USE_CALLBACKS
 #include <SDL3/SDL.h>
-#include <SDL3/SDL_main.h>
 export module App;
 
 #ifdef CMAKE_IMPORT_STD
@@ -22,8 +19,6 @@ import Events;
 export using Window_Type = Windows::Default;
 
 using namespace std;
-
-export struct Main;
 
 export struct App : private GlobalEventHandler< Window_Type >
 {
@@ -144,35 +139,7 @@ private:
     return drivers;
   }
 
-  friend struct Main;
-};
-
-struct Main
-{
-  using Pointer = App *;
-
-  static SDL_AppResult
-  Init(void **appstate, int argc, char **argv)
-  {
-    *appstate = new App(argc, argv);
-    return Pointer(*appstate)->Init();
-  }
-
-  static SDL_AppResult
-  Event(void *appstate, SDL_Event *event)
-  {
-    return Pointer(appstate)->Event(event);
-  }
-
-  static SDL_AppResult
-  Iterate(void *appstate)
-  {
-    return Pointer(appstate)->Iterate();
-  }
-
-  static void
-  Quit(void *appstate, SDL_AppResult result)
-  {
-    delete Pointer(appstate);
-  }
+public:
+  // Give public access to the SDL_main callbacks
+  struct Main;
 };
