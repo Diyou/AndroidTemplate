@@ -5,7 +5,7 @@ module;
 #  include <unordered_set>
 #endif
 #include <SDL3/SDL.h>
-export module App;
+module App:App;
 
 #ifdef CMAKE_IMPORT_STD
 import std;
@@ -15,7 +15,7 @@ import dotcmake;
 
 using namespace std;
 
-export struct App
+struct App
 {
   filesystem::path const             arg0;
   span< char * > const               args;

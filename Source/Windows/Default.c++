@@ -4,18 +4,17 @@ module;
 #  include <memory>
 #endif
 #include <SDL3/SDL.h>
-export module Windows:Default;
+module App:Default;
 
 #ifdef CMAKE_IMPORT_STD
 import std;
 #endif
 
-// Not supported with gcc yet
-// import App;
-import Events;
+import :App;
+import :Events;
 import Logger;
 
-export namespace Windows {
+namespace Windows {
 using namespace std;
 
 struct Default : WindowEvents< Default >
@@ -29,7 +28,10 @@ struct Default : WindowEvents< Default >
   Default(SDL_Window *window, SDL_Renderer *renderer)
   : window(window)
   , renderer(renderer)
-  {}
+  {
+    Debug(format(
+      "{} Launched Window", App::State()->arg0.filename().string().c_str()));
+  }
 
   // Override Window Event
   void

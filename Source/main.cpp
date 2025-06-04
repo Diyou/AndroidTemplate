@@ -7,15 +7,18 @@ module;
 #include <SDL3/SDL_main.h>
 
 module App;
+import :App;
 
-import Windows;
+import :Windows;
+import :Events;
+
 using namespace std;
 
 struct App::Main
 {
-  struct MainWindow : MainEventHandler< Window >
+  struct MainWindow : MainEventHandler< Default >
   {
-    unique_ptr< Window > handle = nullptr;
+    unique_ptr< Default > handle = nullptr;
   };
 
   static inline pair< App *, unique_ptr< MainWindow > > runtime{};
@@ -35,7 +38,7 @@ struct App::Main
       return SDL_APP_FAILURE;
     }
 
-    SDL_Rect bounds{0, 0, Window::DEFAULT_WIDTH, Window::DEFAULT_HEIGHT};
+    SDL_Rect bounds{0, 0, Default::DEFAULT_WIDTH, Default::DEFAULT_HEIGHT};
 
     if constexpr (dotcmake::Platform::MOBILE) {
       auto const primaryDisplay = SDL_GetPrimaryDisplay();
@@ -50,7 +53,7 @@ struct App::Main
       }
     }
 
-    runtime.second->handle = Window::Create(
+    runtime.second->handle = Default::Create(
       App::State()->arg0.filename().string(),
       bounds.w,
       bounds.h,

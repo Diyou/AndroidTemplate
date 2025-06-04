@@ -6,13 +6,14 @@ PUBLIC
     FILE_SET module_files
     TYPE CXX_MODULES
     FILES
-        App.c++
+        App.ixx
+        App.State.c++
         Logger.c++
         Events.c++
-        Windows.ixx
+        Windows.c++
         Windows/Default.c++
 PRIVATE
-    App.main.c++
+    main.cpp
 )
 
 target_link_libraries(${PROJECT_NAME}

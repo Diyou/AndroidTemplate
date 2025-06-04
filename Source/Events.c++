@@ -3,7 +3,7 @@ module;
 #  include <string_view>
 #endif
 #include <SDL3/SDL.h>
-export module Events;
+module App:Events;
 
 #ifdef CMAKE_IMPORT_STD
 import std;
@@ -11,7 +11,7 @@ import std;
 
 using namespace std;
 
-export template< typename Window > struct WindowEvents
+template< typename Window > struct WindowEvents
 {
   virtual void
   OnShow(SDL_WindowEvent &) {};
@@ -80,7 +80,7 @@ export template< typename Window > struct WindowEvents
   constexpr static string_view WindowAddress = "🪟";
 };
 
-export template< typename Window >
+template< typename Window >
   requires derived_from< Window, WindowEvents< Window > >
 struct MainEventHandler
 {
