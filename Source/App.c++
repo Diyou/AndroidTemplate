@@ -101,7 +101,7 @@ private:
     }
 
     mainWindow = Window_Type::Create(
-      arg0.filename(),
+      arg0.filename().string(),
       bounds.w,
       bounds.h,
       dotcmake::Platform::MOBILE
