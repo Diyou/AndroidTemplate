@@ -1,33 +1,33 @@
 module;
 #ifndef CMAKE_IMPORT_STD
+#  include <filesystem>
 #  include <format>
 #  include <memory>
 #endif
 #include <SDL3/SDL.h>
-module App:Default;
+module App:Renderer;
 
 #ifdef CMAKE_IMPORT_STD
 import std;
 #endif
 
+import :Window;
 import :App;
-import :Events;
 import Logger;
 
 namespace Windows {
 using namespace std;
 
-struct Default : WindowEvents< Default >
+struct Renderer : Window< Renderer >
 {
   static constexpr int DEFAULT_WIDTH  = 600;
   static constexpr int DEFAULT_HEIGHT = 800;
 
-  SDL_Window          *window;
   SDL_Renderer        *renderer;
 
-  Default(SDL_Window *window, SDL_Renderer *renderer)
-  : window(window)
-  , renderer(renderer)
+  Renderer(SDL_Window *window, SDL_Renderer *renderer)
+  : Window{window}
+  , renderer{renderer}
   {
     Debug(format(
       "{} Launched Window", App::State()->arg0.filename().string().c_str()));
@@ -49,10 +49,10 @@ struct Default : WindowEvents< Default >
     SDL_SetRenderDrawColor(renderer, 0x00, 0xd0, 0xd0, 0xff);
     SDL_RenderClear(renderer);
     SDL_RenderPresent(renderer);
-    return SDL_APP_CONTINUE;
+    return Window::Iterate();
   }
 
-  static unique_ptr< Default >
+  static unique_ptr< Renderer >
   Create(string const &title, int width, int height, SDL_WindowFlags flags)
   {
     auto *window = SDL_CreateWindow(title.c_str(), width, height, flags);
@@ -65,15 +65,11 @@ struct Default : WindowEvents< Default >
       return nullptr;
     }
 
-    auto pointer = make_unique< Default >(window, renderer);
+    auto pointer = make_unique< Renderer >(window, renderer);
     pointer->Link(window);
     return pointer;
   }
 
-  ~Default()
-  {
-    SDL_DestroyRenderer(renderer);
-    SDL_DestroyWindow(window);
-  }
+  ~Renderer() { SDL_DestroyRenderer(renderer); }
 };
 }

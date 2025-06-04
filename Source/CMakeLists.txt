@@ -11,7 +11,8 @@ PUBLIC
         Logger.c++
         Events.c++
         Windows.c++
-        Windows/Default.c++
+        Windows/Window.c++
+        Windows/Renderer.c++
 PRIVATE
     main.cpp
 )

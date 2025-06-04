@@ -1,5 +1,6 @@
 module App:Windows;
 
-import :Default;
+import :Window;
+import :Renderer;
 
-using Default = Windows::Default;
+using Default = Windows::Renderer;

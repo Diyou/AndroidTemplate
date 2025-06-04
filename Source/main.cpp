@@ -1,5 +1,6 @@
 module;
 #ifndef CMAKE_IMPORT_STD
+#  include <filesystem>
 #  include <memory>
 #endif
 #define SDL_MAIN_USE_CALLBACKS
