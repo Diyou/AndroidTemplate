@@ -11,6 +11,6 @@ project(HelloSDL
     LANGUAGES CXX
 )
 
-EXE(${PROJECT_NAME} Source/main.c++)
+EXE(${PROJECT_NAME})
 
-add_subdirectory(Source/Modules)
+add_subdirectory(Source)

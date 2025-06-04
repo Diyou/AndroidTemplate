@@ -10,6 +10,8 @@ PUBLIC
         Logger.c++
         Events.c++
         Windows/Default.c++
+PRIVATE
+    App.main.c++
 )
 
 target_link_libraries(${PROJECT_NAME}
