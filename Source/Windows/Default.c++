@@ -4,12 +4,14 @@ module;
 #  include <memory>
 #endif
 #include <SDL3/SDL.h>
-export module Windows;
+export module Windows:Default;
 
 #ifdef CMAKE_IMPORT_STD
 import std;
 #endif
 
+// Not supported with gcc yet
+// import App;
 import Events;
 import Logger;
 

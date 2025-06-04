@@ -9,6 +9,7 @@ PUBLIC
         App.c++
         Logger.c++
         Events.c++
+        Windows.ixx
         Windows/Default.c++
 PRIVATE
     App.main.c++

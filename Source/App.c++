@@ -13,17 +13,10 @@ import std;
 
 import dotcmake;
 
-import Windows;
-import Events;
-
-export using Window_Type = Windows::Default;
-
 using namespace std;
 
-export struct App : private GlobalEventHandler< Window_Type >
+export struct App
 {
-  unique_ptr< Window_Type >          mainWindow = nullptr;
-
   filesystem::path const             arg0;
   span< char * > const               args;
   unordered_set< string_view > const videoDrivers;
@@ -32,19 +25,13 @@ export struct App : private GlobalEventHandler< Window_Type >
   constexpr static string_view       VERSION    = PROJECT_VERSION;
   constexpr static string_view       IDENTIFIER = PROJECT_ID;
 
-  static auto
+  static App const *
   State()
   {
     return instance;
   }
 
-  static Window_Type const *
-  Window()
-  {
-    return instance->mainWindow.get();
-  }
-
-  static auto
+  static filesystem::path
   Location()
   {
     return instance->arg0.parent_path();
@@ -70,67 +57,13 @@ private:
         SDL_SetHint(SDL_HINT_VIDEO_DRIVER, "wayland");
       }
     }
-    instance = this;
   }
 
-  SDL_AppResult
-  Init()
-  {
-    if (!SDL_Init(SDL_INIT_VIDEO | SDL_INIT_AUDIO | SDL_INIT_GAMEPAD))
-      [[unlikely]]
-    {
-      SDL_LogError(
-        SDL_LOG_CATEGORY_ERROR, "SDL_Init failed: %s", SDL_GetError());
-      return SDL_APP_FAILURE;
-    }
-
-    SDL_Rect bounds{
-      0, 0, Window_Type::DEFAULT_WIDTH, Window_Type::DEFAULT_HEIGHT};
-
-    if constexpr (dotcmake::Platform::MOBILE) {
-      auto const primaryDisplay = SDL_GetPrimaryDisplay();
-      if (primaryDisplay == 0 || !SDL_GetDisplayBounds(primaryDisplay, &bounds))
-        [[unlikely]]
-      {
-        SDL_LogError(
-          SDL_LOG_CATEGORY_ERROR,
-          "SDL_GetDisplayBounds failed: %s",
-          SDL_GetError());
-        return SDL_APP_FAILURE;
-      }
-    }
-
-    mainWindow = Window_Type::Create(
-      arg0.filename().string(),
-      bounds.w,
-      bounds.h,
-      dotcmake::Platform::MOBILE
-        ? SDL_WINDOW_FULLSCREEN
-        : SDL_WINDOW_RESIZABLE | SDL_WINDOW_TRANSPARENT);
-
-    if (mainWindow == nullptr) {
-      SDL_LogError(
-        SDL_LOG_CATEGORY_ERROR, "Window::Create() failed: %s", SDL_GetError());
-      return SDL_APP_FAILURE;
-    }
-
-    return SDL_APP_CONTINUE;
-  }
-
-  [[nodiscard]]
-  SDL_AppResult
-  Iterate() const
-  {
-    return mainWindow->Iterate();
-  }
-
-  ~App() { SDL_Quit(); }
-
-  static unordered_set< string_view >
+  static decltype(videoDrivers)
   GetVideoDrivers()
   {
-    size_t const                count = SDL_GetNumVideoDrivers();
-    decltype(GetVideoDrivers()) drivers;
+    size_t const count = SDL_GetNumVideoDrivers();
+    remove_const_t< decltype(GetVideoDrivers()) > drivers;
     drivers.reserve(count);
 
     for (int i = 0; i < count; i++) {
@@ -142,4 +75,12 @@ private:
 public:
   // Give public access to the SDL_main callbacks
   struct Main;
+  // Singleton
+  App()            = delete;
+  App(App const &) = delete;
+  App(App &&)      = delete;
+  void
+  operator=(App const &) = delete;
+  App &
+  operator=(App &&other) = delete;
 };

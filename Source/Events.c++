@@ -82,12 +82,12 @@ export template< typename Window > struct WindowEvents
 
 export template< typename Window >
   requires derived_from< Window, WindowEvents< Window > >
-struct GlobalEventHandler
+struct MainEventHandler
 {
   SDL_AppResult
   Event(SDL_Event *event)
   {
-    auto window = [&event]() {
+    auto const window = [&event]() {
       return WindowEvents< Window >::Get(event->window.windowID);
     };
     switch (event->type) {
