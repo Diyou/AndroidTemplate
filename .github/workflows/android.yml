@@ -16,7 +16,7 @@ jobs:
       - name: Set up Android SDK
         uses: android-actions/setup-android@v3
         with:
-          packages: cmake;${{env.CMAKE_VERSION}} ndk;${{env.NDK_VERSION}}
+          packages: cmake;${{env.CMAKE_VERSION}}
 
       - name: Use SDKs cmake version
         run: |
