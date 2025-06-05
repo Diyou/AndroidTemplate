@@ -57,8 +57,10 @@ struct App::Main
       }
     }
 
+    // u8string const u8title = App::Executable().u8string();
+    // string const   title{u8title.begin(), u8title.end()};
     handler->window = Window::Create(
-      App::Executable(),
+      App::Executable().string(),
       bounds.w,
       bounds.h,
       dotcmake::Platform::MOBILE

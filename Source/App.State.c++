@@ -48,7 +48,7 @@ private:
   static inline App *instance = nullptr;
 
   App(int argc, char **argv)
-  : arg0{path{argv[0]}.u8string()}
+  : arg0{argv[0]}
   , args{CreateArgsVector(argc - 1, argv + 1)}
   , videoDrivers{GetVideoDrivers()}
   {
