@@ -1,7 +1,7 @@
 module;
 #ifndef CMAKE_IMPORT_STD
-#  include <format>
 #  include <memory>
+#  include <string>
 #endif
 #include <SDL3/SDL.h>
 module App:Window;
