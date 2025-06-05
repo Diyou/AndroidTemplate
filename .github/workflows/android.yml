@@ -13,11 +13,6 @@ jobs:
     runs-on: ubuntu-24.04
 
     steps:
-      - uses: actions/setup-java@v4
-        with:
-          java-version: '21'
-          distribution: 'temurin'
-
       - name: Set up Android SDK
         uses: android-actions/setup-android@v3
         with:
@@ -25,7 +20,7 @@ jobs:
 
       - name: Use SDKs cmake version
         run: |
-          echo "/usr/local/lib/android/sdk/cmake/${{env.CMAKE_VERSION}}/bin" >> $GITHUB_PATH
+          echo "${ANDROID_HOME}/cmake/${{env.CMAKE_VERSION}}/bin" >> $GITHUB_PATH
 
       - uses: actions/checkout@v4
         with:
