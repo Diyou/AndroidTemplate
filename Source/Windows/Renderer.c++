@@ -29,7 +29,7 @@ struct Renderer : Window< Renderer >
   : Window{window}
   , renderer{renderer}
   {
-    Debug(format("{} Launched Window", App::Executable().string()));
+    Debug(format("{} Launched Window", App::Executable()));
   }
 
   // Override Window Event

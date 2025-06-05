@@ -32,16 +32,16 @@ struct App
     return *instance;
   }
 
-  static path
+  static string
   Executable()
   {
-    return State().arg0.filename();
+    return State().arg0.filename().string();
   }
 
-  static path
+  static string
   Directory()
   {
-    return State().arg0.parent_path();
+    return State().arg0.parent_path().string();
   }
 
 private:
