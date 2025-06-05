@@ -14,11 +14,12 @@ import std;
 import dotcmake;
 
 using namespace std;
+using path = filesystem::path;
 
 struct App
 {
-  filesystem::path const             arg0;
-  span< char * > const               args;
+  path const                         arg0;
+  vector< string_view > const        args;
   unordered_set< string_view > const videoDrivers;
 
   constexpr static string_view       NAME       = PROJECT_NAME;
@@ -31,13 +32,13 @@ struct App
     return *instance;
   }
 
-  static filesystem::path
+  static path
   Executable()
   {
     return State().arg0.filename();
   }
 
-  static filesystem::path
+  static path
   Directory()
   {
     return State().arg0.parent_path();
@@ -47,8 +48,8 @@ private:
   static inline App *instance = nullptr;
 
   App(int argc, char **argv)
-  : arg0{filesystem::path{argv[0]}.u8string()}
-  , args{argv + 1, argv + argc}
+  : arg0{path{argv[0]}.u8string()}
+  , args{CreateArgsVector(argc - 1, argv + 1)}
   , videoDrivers{GetVideoDrivers()}
   {
     SDL_SetAppMetadata(NAME.data(), VERSION.data(), IDENTIFIER.data());
@@ -65,11 +66,23 @@ private:
     }
   }
 
+  static decltype(args)
+  CreateArgsVector(int argc, char **argv)
+  {
+    span                             list{argv, argv + argc};
+    remove_const_t< decltype(args) > views;
+    views.reserve(argc);
+    for (auto const &arg : list) {
+      views.emplace_back(arg);
+    }
+    return views;
+  }
+
   static decltype(videoDrivers)
   GetVideoDrivers()
   {
-    size_t const count = SDL_GetNumVideoDrivers();
-    remove_const_t< decltype(GetVideoDrivers()) > drivers;
+    size_t const                             count = SDL_GetNumVideoDrivers();
+    remove_const_t< decltype(videoDrivers) > drivers;
     drivers.reserve(count);
 
     for (int i = 0; i < count; i++) {
