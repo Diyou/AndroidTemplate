@@ -18,7 +18,8 @@ jobs:
           sudo dnf update -y
           packages=(
               git                  
-              unzip                
+              unzip
+              cmake ninja-build                
               gcc gcc-c++        
               SDL3-devel
           )
