@@ -17,9 +17,11 @@ using namespace std;
 
 struct App::Main
 {
-  struct MainWindow : MainEventHandler< Default >
+  using Window = Default;
+
+  struct MainWindow : MainEventHandler< Window >
   {
-    unique_ptr< Default > handle = nullptr;
+    unique_ptr< Window > window = nullptr;
   };
 
   static inline pair< App *, unique_ptr< MainWindow > > runtime{};
@@ -27,9 +29,10 @@ struct App::Main
   static SDL_AppResult
   Init(void **appstate, int argc, char **argv)
   {
-    App::instance  = new App{argc, argv};
-    runtime.first  = App::instance;
-    runtime.second = make_unique< MainWindow >();
+    auto &[app, handler] = runtime;
+    App::instance        = new App{argc, argv};
+    app                  = App::instance;
+    handler              = make_unique< MainWindow >();
 
     if (!SDL_Init(SDL_INIT_VIDEO | SDL_INIT_AUDIO | SDL_INIT_GAMEPAD))
       [[unlikely]]
@@ -39,7 +42,7 @@ struct App::Main
       return SDL_APP_FAILURE;
     }
 
-    SDL_Rect bounds{0, 0, Default::DEFAULT_WIDTH, Default::DEFAULT_HEIGHT};
+    SDL_Rect bounds{0, 0, Window::DEFAULT_WIDTH, Window::DEFAULT_HEIGHT};
 
     if constexpr (dotcmake::Platform::MOBILE) {
       auto const primaryDisplay = SDL_GetPrimaryDisplay();
@@ -54,15 +57,15 @@ struct App::Main
       }
     }
 
-    runtime.second->handle = Default::Create(
-      App::State()->arg0.filename().string(),
+    handler->window = Window::Create(
+      App::Executable(),
       bounds.w,
       bounds.h,
       dotcmake::Platform::MOBILE
         ? SDL_WINDOW_FULLSCREEN
         : SDL_WINDOW_RESIZABLE | SDL_WINDOW_TRANSPARENT);
 
-    if (runtime.second->handle == nullptr) {
+    if (handler->window == nullptr) {
       SDL_LogError(
         SDL_LOG_CATEGORY_ERROR, "Window::Create() failed: %s", SDL_GetError());
       return SDL_APP_FAILURE;
@@ -78,20 +81,23 @@ struct App::Main
   static SDL_AppResult
   Event(void *appstate, SDL_Event *event)
   {
-    return Pointer(appstate)->second->Event(event);
+    auto const &[app, handler] = *Pointer(appstate);
+    return handler->Event(event);
   }
 
   static SDL_AppResult
   Iterate(void *appstate)
   {
-    return Pointer(appstate)->second->handle->Iterate();
+    auto const &[app, handler] = *Pointer(appstate);
+    return handler->window->Iterate();
   }
 
   static void
   Quit(void *appstate, SDL_AppResult result)
   {
+    auto const &[app, handler] = *Pointer(appstate);
     SDL_Quit();
-    delete Pointer(appstate)->first;
+    delete app;
   }
 };
 

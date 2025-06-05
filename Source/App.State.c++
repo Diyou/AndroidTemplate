@@ -25,23 +25,29 @@ struct App
   constexpr static string_view       VERSION    = PROJECT_VERSION;
   constexpr static string_view       IDENTIFIER = PROJECT_ID;
 
-  static App const *
+  static App const &
   State()
   {
-    return instance;
+    return *instance;
   }
 
   static filesystem::path
-  Location()
+  Executable()
   {
-    return instance->arg0.parent_path();
+    return State().arg0.filename();
+  }
+
+  static filesystem::path
+  Directory()
+  {
+    return State().arg0.parent_path();
   }
 
 private:
   static inline App *instance = nullptr;
 
   App(int argc, char **argv)
-  : arg0{argv[0]}
+  : arg0{filesystem::path{argv[0]}.u8string()}
   , args{argv + 1, argv + argc}
   , videoDrivers{GetVideoDrivers()}
   {
