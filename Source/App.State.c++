@@ -3,6 +3,7 @@ module;
 #  include <filesystem>
 #  include <span>
 #  include <unordered_set>
+#  include <vector>
 #endif
 #include <SDL3/SDL.h>
 module App:App;
