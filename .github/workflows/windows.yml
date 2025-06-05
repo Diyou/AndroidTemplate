@@ -5,8 +5,6 @@ on:
 
 env:
   SDL_VERSION: 3.2.14
-  CMAKE_VERSION: 4.0.2
-  NINJA_VERSION: 1.12.1
   BUILD_TYPE: debug
 
 jobs:
@@ -22,12 +20,6 @@ jobs:
         uses: ilammy/msvc-dev-cmd@v1
         with:
           vsversion: 2022
-
-      - name: Get CMake and Ninja
-        uses: lukka/get-cmake@latest
-        with:
-          cmakeVersion: ${{env.CMAKE_VERSION}}
-          ninjaVersion: ${{env.NINJA_VERSION}}
 
       - name: Setup SDL sdk
         uses: libsdl-org/setup-sdl@main

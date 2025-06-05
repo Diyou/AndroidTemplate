@@ -26,22 +26,34 @@ struct App
   constexpr static string_view       VERSION    = PROJECT_VERSION;
   constexpr static string_view       IDENTIFIER = PROJECT_ID;
 
-  static App const &
-  State()
+  static path const &
+  Path()
   {
-    return *instance;
+    return State().arg0;
   }
 
   static string
   Executable()
   {
-    return State().arg0.filename().string();
+    return Path().filename().string();
   }
 
   static string
   Directory()
   {
-    return State().arg0.parent_path().string();
+    return Path().parent_path().string();
+  }
+
+  static decltype(args) &
+  Arguments()
+  {
+    return State().args;
+  }
+
+  static App const &
+  State()
+  {
+    return *instance;
   }
 
 private:
