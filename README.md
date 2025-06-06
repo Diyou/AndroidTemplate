@@ -6,12 +6,12 @@
 
 # SDLTemplate
 
-A template to start a c++ module based multiplatform project with SDL3.<br>
+A easy extendable template to start a c++ module based multiplatform project with SDL3.<br>
 Toolchain abstractions via [dotcmake](https://github.com/Diyou/.cmake)
 
 ### Contents:
 
 - [Platform agnostic main](Source/main.cpp) (via SDL_MAIN_USE_CALLBACKS)
 - [Global App instance](Source/App.State.c++)
-- [Event-Mapping](Source/Events.c++)
+- [Event-Mapping](Source/Events.c++) (With static dispatch)
 - [Basic Window class with default Renderer](Source/Windows/Renderer.c++)

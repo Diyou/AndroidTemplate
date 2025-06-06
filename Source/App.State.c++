@@ -85,6 +85,7 @@ private:
     span                             list{argv, argv + argc};
     remove_const_t< decltype(args) > views;
     views.reserve(argc);
+
     for (auto const &arg : list) {
       views.emplace_back(arg);
     }

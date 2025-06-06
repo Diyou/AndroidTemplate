@@ -1,6 +1,8 @@
 module;
 #ifndef CMAKE_IMPORT_STD
 #  include <memory>
+#  include <unordered_map>
+#  include <variant>
 #endif
 #define SDL_MAIN_USE_CALLBACKS
 #include <SDL3/SDL_log.h>
@@ -10,20 +12,21 @@ module App;
 import :App;
 
 import :Windows;
+import :Renderer;
 import :Events;
 
 using namespace std;
 
 struct App::Main
 {
-  using Window = Default;
+  using Window = Windows::Default;
 
-  struct MainWindow : MainEventHandler< Window >
+  struct MainWindow : MainEventHandler
   {
-    unique_ptr< Window > window = nullptr;
+    Windows::Container::iterator window;
   };
 
-  static inline pair< App *, unique_ptr< MainWindow > > runtime{};
+  static inline tuple< App *, unique_ptr< MainWindow > > runtime{};
 
   static SDL_AppResult
   Init(void **appstate, int argc, char **argv)
@@ -58,13 +61,13 @@ struct App::Main
 
     handler->window = Window::Create(
       App::Executable(),
-      bounds.w,
-      bounds.h,
       dotcmake::Platform::MOBILE
         ? SDL_WINDOW_FULLSCREEN
-        : SDL_WINDOW_RESIZABLE | SDL_WINDOW_TRANSPARENT);
+        : SDL_WINDOW_RESIZABLE | SDL_WINDOW_TRANSPARENT,
+      bounds.w,
+      bounds.h);
 
-    if (handler->window == nullptr) {
+    if (handler->window == Windows::Container::end()) {
       SDL_LogError(
         SDL_LOG_CATEGORY_ERROR, "Window::Create() failed: %s", SDL_GetError());
       return SDL_APP_FAILURE;
@@ -88,7 +91,11 @@ struct App::Main
   Iterate(void *appstate)
   {
     auto const &[app, handler] = *Pointer(appstate);
-    return handler->window->Iterate();
+    SDL_AppResult result       = SDL_APP_CONTINUE;
+    visit(
+      [&result](auto &&arg) { result = arg->Iterate(); },
+      handler->window->second);
+    return result;
   }
 
   static void

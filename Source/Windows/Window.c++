@@ -15,19 +15,17 @@ import :Events;
 namespace Windows {
 using namespace std;
 
-template< typename T > struct Window : WindowEvents< T >
+struct Window : WindowEvents
 {
-  static constexpr int DEFAULT_WIDTH  = 720;
-  static constexpr int DEFAULT_HEIGHT = 480;
+  static inline int DEFAULT_WIDTH  = 720;
+  static inline int DEFAULT_HEIGHT = 480;
 
-  SDL_Window          *window;
+  SDL_Window       *window;
 
-private:
   Window(SDL_Window *window)
   : window{window}
   {}
 
-public:
   [[nodiscard]]
   SDL_AppResult
   Iterate() const
@@ -35,8 +33,13 @@ public:
     return SDL_APP_CONTINUE;
   }
 
+  template< typename T >
   static unique_ptr< T >
-  Create(string const &title, int width, int height, SDL_WindowFlags flags)
+  Create(
+    string const   &title,
+    SDL_WindowFlags flags  = 0,
+    int             width  = DEFAULT_WIDTH,
+    int             height = DEFAULT_HEIGHT)
   {
     auto *window = SDL_CreateWindow(title.c_str(), width, height, flags);
     if (window == nullptr) [[unlikely]] {
@@ -44,25 +47,26 @@ public:
     }
 
     auto pointer = make_unique< T >(window);
-    pointer->Link(window);
     return pointer;
   }
 
   ~Window() { SDL_DestroyWindow(window); }
-
-  friend T;
 };
 
-struct BasicWindow : Window< BasicWindow >
+struct BasicWindow : Window
 {
   BasicWindow(SDL_Window *window)
   : Window{window}
   {}
 
   static unique_ptr< BasicWindow >
-  Create(string const &title, int width, int height, SDL_WindowFlags flags)
+  Create(
+    string const   &title,
+    SDL_WindowFlags flags  = 0,
+    int             width  = DEFAULT_WIDTH,
+    int             height = DEFAULT_HEIGHT)
   {
-    return Window::Create(title, width, height, flags);
+    return Window::Create< BasicWindow >(title, flags, width, height);
   }
 };
 }

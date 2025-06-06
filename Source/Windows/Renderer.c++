@@ -1,8 +1,8 @@
 module;
 #ifndef CMAKE_IMPORT_STD
-#  include <filesystem>
 #  include <format>
-#  include <memory>
+#  include <unordered_map>
+#  include <variant>
 #endif
 #include <SDL3/SDL.h>
 module App:Renderer;
@@ -11,6 +11,7 @@ module App:Renderer;
 import std;
 #endif
 
+import :Windows;
 import :Window;
 import :App;
 import Logger;
@@ -18,18 +19,18 @@ import Logger;
 namespace Windows {
 using namespace std;
 
-struct Renderer : Window< Renderer >
+struct Renderer : Window
 {
-  static constexpr int DEFAULT_WIDTH  = 600;
-  static constexpr int DEFAULT_HEIGHT = 800;
+  static inline int DEFAULT_WIDTH  = 600;
+  static inline int DEFAULT_HEIGHT = 800;
 
-  SDL_Renderer        *renderer;
+  SDL_Renderer     *renderer;
 
   Renderer(SDL_Window *window, SDL_Renderer *renderer)
   : Window{window}
   , renderer{renderer}
   {
-    Debug(format("{} Launched Window", App::Executable()));
+    SDL_SetRenderVSync(renderer, SDL_RENDERER_VSYNC_ADAPTIVE);
   }
 
   // Override Window Event
@@ -38,7 +39,7 @@ struct Renderer : Window< Renderer >
   {
     auto const &width  = event.data1;
     auto const &height = event.data2;
-    Debug(format("Resized: ({}:{})", width, height));
+    Debug(format("Resized to ({}:{})", width, height));
   }
 
   [[nodiscard]]
@@ -51,22 +52,27 @@ struct Renderer : Window< Renderer >
     return Window::Iterate();
   }
 
-  static unique_ptr< Renderer >
-  Create(string const &title, int width, int height, SDL_WindowFlags flags)
+  static Container::iterator
+  Create(
+    string const   &title,
+    SDL_WindowFlags flags  = 0,
+    int             width  = DEFAULT_WIDTH,
+    int             height = DEFAULT_HEIGHT)
   {
     auto *window = SDL_CreateWindow(title.c_str(), width, height, flags);
     if (window == nullptr) [[unlikely]] {
-      return nullptr;
+      return Container::end();
     }
 
     auto *renderer = SDL_CreateRenderer(window, nullptr);
     if (renderer == nullptr) [[unlikely]] {
-      return nullptr;
+      return Container::end();
     }
 
-    auto pointer = make_unique< Renderer >(window, renderer);
-    pointer->Link(window);
-    return pointer;
+    auto [it, emplaced] =
+      Container::Emplace< Renderer >(window, window, renderer);
+
+    return it;
   }
 
   ~Renderer() { SDL_DestroyRenderer(renderer); }
