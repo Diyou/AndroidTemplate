@@ -11,7 +11,6 @@ module App:Renderer;
 import std;
 #endif
 
-import :Windows;
 import :Window;
 import :App;
 import Logger;

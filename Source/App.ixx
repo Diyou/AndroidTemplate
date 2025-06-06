@@ -6,11 +6,10 @@ module;
 #include <SDL3/SDL.h>
 export module App;
 
-import :Windows;
 import :Events;
 
-// All Variants need to be visible:
-import :Renderer;
+// Make Window implementations visible
+import :Windows;
 
 using namespace std;
 
