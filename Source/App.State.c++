@@ -17,15 +17,16 @@ import dotcmake;
 using namespace std;
 using path = filesystem::path;
 
-struct App
+class App
 {
   path const                         arg0;
   vector< string_view > const        args;
   unordered_set< string_view > const videoDrivers;
 
-  constexpr static string_view       NAME       = PROJECT_NAME;
-  constexpr static string_view       VERSION    = PROJECT_VERSION;
-  constexpr static string_view       IDENTIFIER = PROJECT_ID;
+public:
+  constexpr static string_view NAME       = PROJECT_NAME;
+  constexpr static string_view VERSION    = PROJECT_VERSION;
+  constexpr static string_view IDENTIFIER = PROJECT_ID;
 
   static path const &
   Path()
@@ -58,11 +59,9 @@ struct App
   }
 
 private:
-  static inline App *instance = nullptr;
-
-  App(int argc, char **argv)
-  : arg0{argv[0]}
-  , args{CreateArgsVector(argc - 1, argv + 1)}
+  App(span< char * > const &argv)
+  : arg0{argv.front()}
+  , args{CreateArgsVector(argv.size() - 1, argv.data() + 1)}
   , videoDrivers{GetVideoDrivers()}
   {
     SDL_SetAppMetadata(NAME.data(), VERSION.data(), IDENTIFIER.data());
@@ -79,8 +78,12 @@ private:
     }
   }
 
+  App(int argc, char **argv)
+  : App{span< char * >{argv, argv + argc}}
+  {}
+
   static decltype(args)
-  CreateArgsVector(int argc, char **argv)
+  CreateArgsVector(size_t argc, char **argv)
   {
     span                             list{argv, argv + argc};
     remove_const_t< decltype(args) > views;
@@ -105,15 +108,9 @@ private:
     return drivers;
   }
 
+  static inline App *instance = nullptr;
+
 public:
   // Give public access to the SDL_main callbacks
   struct Main;
-  // Singleton
-  App()            = delete;
-  App(App const &) = delete;
-  App(App &&)      = delete;
-  void
-  operator=(App const &) = delete;
-  App &
-  operator=(App &&other) = delete;
 };

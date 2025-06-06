@@ -38,7 +38,6 @@ struct Renderer : Window
   {
     auto const &width  = event.data1;
     auto const &height = event.data2;
-    Debug(format("Resized to ({}:{})", width, height));
   }
 
   [[nodiscard]]

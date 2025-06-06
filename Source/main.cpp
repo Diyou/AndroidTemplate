@@ -24,15 +24,22 @@ struct App::Main
     Windows::Container::iterator window;
   };
 
-  static inline tuple< App *, unique_ptr< MainWindow > > runtime{};
+  static inline tuple< optional< App >, optional< MainWindow > > runtime{};
+
+  static App
+  CreateApp(int argc, char **argv)
+  {
+    return App{argc, argv};
+  }
 
   static SDL_AppResult
   Init(void **appstate, int argc, char **argv)
   {
     auto &[app, handler] = runtime;
-    App::instance        = new App{argc, argv};
-    app                  = App::instance;
-    handler              = make_unique< MainWindow >();
+    app.emplace(CreateApp(argc, argv));
+    handler.emplace();
+
+    App::instance = &app.value();
 
     if (!SDL_Init(SDL_INIT_VIDEO | SDL_INIT_AUDIO | SDL_INIT_GAMEPAD))
       [[unlikely]]
@@ -81,7 +88,7 @@ struct App::Main
   static SDL_AppResult
   Event(void *appstate, SDL_Event *event)
   {
-    auto const &[app, handler] = *Pointer(appstate);
+    auto &[app, handler] = *Pointer(appstate);
     return handler->Event(event);
   }
 
@@ -99,9 +106,10 @@ struct App::Main
   static void
   Quit(void *appstate, SDL_AppResult result)
   {
-    auto const &[app, handler] = *Pointer(appstate);
+    auto &[app, handler] = *Pointer(appstate);
     SDL_Quit();
-    delete app;
+    app     = nullopt;
+    handler = nullopt;
   }
 };
 
