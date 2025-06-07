@@ -24,22 +24,16 @@ struct App::Main
     Windows::Container::iterator window;
   };
 
-  static inline tuple< optional< App >, optional< MainWindow > > runtime{};
-
-  static App
-  CreateApp(int argc, char **argv)
-  {
-    return App{argc, argv};
-  }
+  // avoids heap allocation
+  alignas(App) static inline array< byte, sizeof(App) > appStackBuffer;
+  static inline tuple< App *, MainWindow > runtime;
 
   static SDL_AppResult
   Init(void **appstate, int argc, char **argv)
   {
     auto &[app, handler] = runtime;
-    app.emplace(CreateApp(argc, argv));
-    handler.emplace();
-
-    App::instance = &app.value();
+    app                  = new (appStackBuffer.data()) App{argc, argv};
+    App::instance        = app;
 
     if (!SDL_Init(SDL_INIT_VIDEO | SDL_INIT_AUDIO | SDL_INIT_GAMEPAD))
       [[unlikely]]
@@ -64,7 +58,7 @@ struct App::Main
       }
     }
 
-    handler->window = Window::Create(
+    auto [it, created] = Window::Create(
       App::Executable(),
       dotcmake::Platform::MOBILE
         ? SDL_WINDOW_FULLSCREEN
@@ -72,13 +66,15 @@ struct App::Main
       bounds.w,
       bounds.h);
 
-    if (handler->window == Windows::Container::end()) {
+    if (!created) {
       SDL_LogError(
         SDL_LOG_CATEGORY_ERROR, "Window::Create() failed: %s", SDL_GetError());
       return SDL_APP_FAILURE;
     }
 
-    *appstate = &runtime;
+    handler.window = it;
+
+    *appstate      = &runtime;
 
     return SDL_APP_CONTINUE;
   }
@@ -89,7 +85,7 @@ struct App::Main
   Event(void *appstate, SDL_Event *event)
   {
     auto &[app, handler] = *Pointer(appstate);
-    return handler->Event(event);
+    return handler.Event(event);
   }
 
   static SDL_AppResult
@@ -99,7 +95,7 @@ struct App::Main
     SDL_AppResult result       = SDL_APP_CONTINUE;
     visit(
       [&result](auto &&arg) { result = arg->Iterate(); },
-      handler->window->second);
+      handler.window->second);
     return result;
   }
 
@@ -108,8 +104,7 @@ struct App::Main
   {
     auto &[app, handler] = *Pointer(appstate);
     SDL_Quit();
-    app     = nullopt;
-    handler = nullopt;
+    app->~App();
   }
 };
 

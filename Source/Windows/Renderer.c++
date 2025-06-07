@@ -20,6 +20,7 @@ using namespace std;
 
 struct Renderer : Window
 {
+  using Variant                    = Renderer;
   static inline int DEFAULT_WIDTH  = 600;
   static inline int DEFAULT_HEIGHT = 800;
 
@@ -50,7 +51,7 @@ struct Renderer : Window
     return Window::Iterate();
   }
 
-  static Container::iterator
+  static decltype(Container::Emplace< Variant >(nullptr))
   Create(
     string const   &title,
     SDL_WindowFlags flags  = 0,
@@ -59,18 +60,15 @@ struct Renderer : Window
   {
     auto *window = SDL_CreateWindow(title.c_str(), width, height, flags);
     if (window == nullptr) [[unlikely]] {
-      return Container::end();
+      return {Container::end(), false};
     }
 
     auto *renderer = SDL_CreateRenderer(window, nullptr);
     if (renderer == nullptr) [[unlikely]] {
-      return Container::end();
+      return {Container::end(), false};
     }
 
-    auto [it, emplaced] =
-      Container::Emplace< Renderer >(window, window, renderer);
-
-    return it;
+    return Window::Create< Variant >(window, window, renderer);
   }
 
   ~Renderer() { SDL_DestroyRenderer(renderer); }

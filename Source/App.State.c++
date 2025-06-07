@@ -21,7 +21,7 @@ class App
 {
   path const                         arg0;
   vector< string_view > const        args;
-  unordered_set< string_view > const videoDrivers;
+  unordered_set< string_view > const availableVideoDrivers;
 
 public:
   constexpr static string_view NAME       = PROJECT_NAME;
@@ -61,8 +61,8 @@ public:
 private:
   App(span< char * > const &argv)
   : arg0{argv.front()}
-  , args{CreateArgsVector(argv.size() - 1, argv.data() + 1)}
-  , videoDrivers{GetVideoDrivers()}
+  , args{ArgVector(argv.subspan(1))}
+  , availableVideoDrivers{GetVideoDrivers()}
   {
     SDL_SetAppMetadata(NAME.data(), VERSION.data(), IDENTIFIER.data());
 
@@ -72,7 +72,7 @@ private:
 
     // Define hints
     if constexpr (dotcmake::Platform::Linux) {
-      if (videoDrivers.contains("wayland")) {
+      if (availableVideoDrivers.contains("wayland")) {
         SDL_SetHint(SDL_HINT_VIDEO_DRIVER, "wayland");
       }
     }
@@ -83,11 +83,10 @@ private:
   {}
 
   static decltype(args)
-  CreateArgsVector(size_t argc, char **argv)
+  ArgVector(span< char * > const &list)
   {
-    span                             list{argv, argv + argc};
     remove_const_t< decltype(args) > views;
-    views.reserve(argc);
+    views.reserve(list.size());
 
     for (auto const &arg : list) {
       views.emplace_back(arg);
@@ -95,11 +94,11 @@ private:
     return views;
   }
 
-  static decltype(videoDrivers)
+  static decltype(availableVideoDrivers)
   GetVideoDrivers()
   {
-    size_t const                             count = SDL_GetNumVideoDrivers();
-    remove_const_t< decltype(videoDrivers) > drivers;
+    size_t const count = SDL_GetNumVideoDrivers();
+    remove_const_t< decltype(availableVideoDrivers) > drivers;
     drivers.reserve(count);
 
     for (int i = 0; i < count; i++) {
@@ -113,4 +112,13 @@ private:
 public:
   // Give public access to the SDL_main callbacks
   struct Main;
+
+  // Make singleton Immovable
+  App()            = delete;
+  App(App const &) = delete;
+  App(App &&)      = delete;
+  App &
+  operator=(App const &) = delete;
+  App &
+  operator=(App &&) = delete;
 };

@@ -20,7 +20,7 @@ decltype(Container::instances) Container::instances;
 decltype(Container::Get(0)) &
 Container::Get(SDL_WindowID windowID)
 {
-  return Container::instances[windowID];
+  return Container::instances.at(windowID);
 };
 
 decltype(Container::Remove(0))

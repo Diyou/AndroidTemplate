@@ -33,21 +33,11 @@ struct Window : WindowEvents
     return SDL_APP_CONTINUE;
   }
 
-  template< typename T >
-  static unique_ptr< T >
-  Create(
-    string const   &title,
-    SDL_WindowFlags flags  = 0,
-    int             width  = DEFAULT_WIDTH,
-    int             height = DEFAULT_HEIGHT)
+  template< typename Variant, typename... Args >
+  static pair< Container::iterator, bool >
+  Create(SDL_Window *window, Args &&...args)
   {
-    auto *window = SDL_CreateWindow(title.c_str(), width, height, flags);
-    if (window == nullptr) [[unlikely]] {
-      return nullptr;
-    }
-
-    auto pointer = make_unique< T >(window);
-    return pointer;
+    return Container::Emplace< Variant >(window, std::forward< Args >(args)...);
   }
 
   ~Window() { SDL_DestroyWindow(window); }
@@ -58,15 +48,5 @@ struct BasicWindow : Window
   BasicWindow(SDL_Window *window)
   : Window{window}
   {}
-
-  static unique_ptr< BasicWindow >
-  Create(
-    string const   &title,
-    SDL_WindowFlags flags  = 0,
-    int             width  = DEFAULT_WIDTH,
-    int             height = DEFAULT_HEIGHT)
-  {
-    return Window::Create< BasicWindow >(title, flags, width, height);
-  }
 };
 }
