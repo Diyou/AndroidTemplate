@@ -36,6 +36,30 @@ struct Window : WindowEvents
     return SDL_GetWindowID(handle);
   }
 
+  void
+  Maximize() const
+  {
+    SDL_MaximizeWindow(handle);
+  }
+
+  void
+  Minimize() const
+  {
+    SDL_MinimizeWindow(handle);
+  }
+
+  void
+  Hide() const
+  {
+    SDL_HideWindow(handle);
+  }
+
+  void
+  Destroy() const
+  {
+    SDL_DestroyWindow(handle);
+  }
+
   template< typename Variant, typename... Args >
   static pair< Container::iterator, bool >
   Create(Args &&...args)
@@ -55,7 +79,5 @@ struct BasicWindow : Window
     handle = SDL_CreateWindow(title.c_str(), width, height, flags);
     assert(handle != nullptr);
   }
-
-  ~BasicWindow() { SDL_DestroyWindow(handle); }
 };
 }

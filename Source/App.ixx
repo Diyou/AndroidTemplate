@@ -23,7 +23,7 @@ Container::Remove(SDL_WindowID windowID)
   if (item != instances.end()) [[likely]] {
     return instances.erase(item);
   }
-  return instances.end();
+  return End();
 }
 }
 
@@ -40,7 +40,9 @@ MainEventHandler::Event(SDL_Event *event) const
         && event->type <= TYPE::SDL_EVENT_WINDOW_LAST)
       {
         return visit(
-          [&event](auto &&window) { return window->Event(event->window); },
+          [&event](auto &&window) {
+            return window->WindowEvent(event->window);
+          },
           Windows::Container::Get(event->window.windowID));
       }
       break;

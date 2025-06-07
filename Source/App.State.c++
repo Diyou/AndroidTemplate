@@ -13,9 +13,10 @@ import std;
 #endif
 
 import dotcmake;
-
 using namespace std;
-using path = filesystem::path;
+using path                                 = filesystem::path;
+
+constexpr string_view VIDEO_DRIVER_WAYLAND = "wayland";
 
 class App
 {
@@ -72,10 +73,13 @@ private:
 
     // Define hints
     if constexpr (dotcmake::Platform::Linux) {
-      if (availableVideoDrivers.contains("wayland")) {
-        SDL_SetHint(SDL_HINT_VIDEO_DRIVER, "wayland");
+      if (availableVideoDrivers.contains(VIDEO_DRIVER_WAYLAND.data())) {
+        SDL_SetHint(SDL_HINT_VIDEO_DRIVER, VIDEO_DRIVER_WAYLAND.data());
       }
     }
+
+    // This is required for cleanup and graceful close
+    SDL_SetHint(SDL_HINT_QUIT_ON_LAST_WINDOW_CLOSE, "0");
   }
 
   App(int argc, char **argv)

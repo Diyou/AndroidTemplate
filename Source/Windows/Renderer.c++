@@ -25,6 +25,7 @@ struct Renderer : BasicWindow
   static inline int DEFAULT_HEIGHT = 800;
 
   SDL_Renderer     *renderer;
+  bool              minimizeOnClose = false;
 
   Renderer(
     string const   &title,
@@ -46,6 +47,17 @@ struct Renderer : BasicWindow
     auto const &height = event.data2;
   }
 
+  void
+  OnCloseRequest(SDL_WindowEvent &event) final
+  {
+    if (minimizeOnClose) {
+      Minimize();
+    }
+    else {
+      Destroy();
+    }
+  }
+
   [[nodiscard]]
   SDL_AppResult
   Iterate() const final
@@ -53,9 +65,14 @@ struct Renderer : BasicWindow
     SDL_SetRenderDrawColor(renderer, 0x00, 0xd0, 0xd0, 0xff);
     SDL_RenderClear(renderer);
     SDL_RenderPresent(renderer);
-    return Window::Iterate();
+    return BasicWindow::Iterate();
   }
 
-  ~Renderer() { SDL_DestroyRenderer(renderer); }
+  void
+  Destroy() const
+  {
+    SDL_DestroyRenderer(renderer);
+    BasicWindow::Destroy();
+  }
 };
 }

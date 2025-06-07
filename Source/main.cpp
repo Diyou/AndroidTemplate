@@ -26,14 +26,15 @@ struct App::Main
 
   // avoids heap allocation
   alignas(App) static inline array< byte, sizeof(App) > appStackBuffer;
-  static inline tuple< App *, MainWindow > runtime;
+  static inline tuple< App *, MainWindow, bool > runtime;
 
   static SDL_AppResult
   Init(void **appstate, int argc, char **argv)
   {
-    auto &[app, handler] = runtime;
-    app                  = new (appStackBuffer.data()) App{argc, argv};
-    App::instance        = app;
+    auto &[app, handler, running] = runtime;
+    app                           = new (appStackBuffer.data()) App{argc, argv};
+    App::instance                 = app;
+    running                       = true;
 
     if (!SDL_Init(SDL_INIT_VIDEO | SDL_INIT_AUDIO | SDL_INIT_GAMEPAD))
       [[unlikely]]
@@ -58,7 +59,7 @@ struct App::Main
       }
     }
 
-    auto [it, created] = Window::Create< Window >(
+    auto const &[it, created] = Window::Create< Window >(
       App::Executable(),
       dotcmake::Platform::MOBILE
         ? SDL_WINDOW_FULLSCREEN
@@ -66,7 +67,7 @@ struct App::Main
       bounds.w,
       bounds.h);
 
-    if (!created) {
+    if (!created) [[unlikely]] {
       SDL_LogError(
         SDL_LOG_CATEGORY_ERROR, "Window::Create() failed: %s", SDL_GetError());
       return SDL_APP_FAILURE;
@@ -84,25 +85,31 @@ struct App::Main
   static SDL_AppResult
   Event(void *appstate, SDL_Event *event)
   {
-    auto &[app, handler] = *Pointer(appstate);
-    return handler.Event(event);
+    auto &[app, handler, running] = *Pointer(appstate);
+    switch (event->type) {
+      case SDL_EventType::SDL_EVENT_WINDOW_DESTROYED:
+        if (handler.window->first == event->window.windowID) [[unlikely]] {
+          running = false;
+        }
+      default: return handler.Event(event);
+    }
   }
 
   static SDL_AppResult
   Iterate(void *appstate)
   {
-    auto const &[app, handler] = *Pointer(appstate);
-    SDL_AppResult result       = SDL_APP_CONTINUE;
-    visit(
-      [&result](auto &&arg) { result = arg->Iterate(); },
-      handler.window->second);
-    return result;
+    auto &[app, handler, running] = *Pointer(appstate);
+    if (!running) [[unlikely]] {
+      return SDL_APP_SUCCESS;
+    }
+    return visit(
+      [](auto &&arg) { return arg->Iterate(); }, handler.window->second);
   }
 
   static void
   Quit(void *appstate, SDL_AppResult result)
   {
-    auto &[app, handler] = *Pointer(appstate);
+    auto &[app, handler, running] = *Pointer(appstate);
     SDL_Quit();
     app->~App();
   }

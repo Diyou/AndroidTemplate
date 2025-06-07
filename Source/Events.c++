@@ -42,7 +42,7 @@ public:
   }
 
   static iterator
-  end()
+  End()
   {
     return instances.end();
   }
@@ -100,7 +100,7 @@ struct WindowEvents
 
   template< typename Self >
   SDL_AppResult
-  Event(this Self &&self, SDL_WindowEvent &event)
+  WindowEvent(this Self &&self, SDL_WindowEvent &event)
   {
     using TYPE = SDL_EventType;
 
@@ -135,10 +135,12 @@ struct WindowEvents
       case TYPE::SDL_EVENT_WINDOW_SAFE_AREA_CHANGED:
       case TYPE::SDL_EVENT_WINDOW_OCCLUDED:
       case TYPE::SDL_EVENT_WINDOW_ENTER_FULLSCREEN:
-      case TYPE::SDL_EVENT_WINDOW_LEAVE_FULLSCREEN:
+      case TYPE::SDL_EVENT_WINDOW_LEAVE_FULLSCREEN     : break;
       case TYPE::SDL_EVENT_WINDOW_DESTROYED:
+        Windows::Container::Remove(event.windowID);
+        break;
       case TYPE::SDL_EVENT_WINDOW_HDR_STATE_CHANGED:
-      default                                          : break;
+      default                                      : break;
     }
     return SDL_APP_CONTINUE;
   }
