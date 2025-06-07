@@ -21,7 +21,6 @@ using namespace std;
 
 struct Renderer : BasicWindow
 {
-  using Variant                    = Renderer;
   static inline int DEFAULT_WIDTH  = 600;
   static inline int DEFAULT_HEIGHT = 800;
 

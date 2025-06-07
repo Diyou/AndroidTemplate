@@ -6,22 +6,15 @@ module;
 #include <SDL3/SDL.h>
 export module App;
 
-import :Events;
-
-// Make Window implementations visible
 import :Windows;
+import :Events;
 
 using namespace std;
 
 // Implementations
 namespace Windows {
+// These need to know the sizes of the variants and couldn't be inlined
 decltype(Container::instances) Container::instances;
-
-decltype(Container::Get(0)) &
-Container::Get(SDL_WindowID windowID)
-{
-  return Container::instances.at(windowID);
-};
 
 decltype(Container::Remove(0))
 Container::Remove(SDL_WindowID windowID)
@@ -36,14 +29,15 @@ Container::Remove(SDL_WindowID windowID)
 
 // Events.c++
 SDL_AppResult
-MainEventHandler::Event(SDL_Event *event)
+MainEventHandler::Event(SDL_Event *event) const
 {
+  using TYPE = SDL_EventType;
   switch (event->type) {
-    case EventType::SDL_EVENT_QUIT: return SDL_APP_SUCCESS;
+    case TYPE::SDL_EVENT_QUIT: return SDL_APP_SUCCESS;
     default:
       if (
-        event->type >= EventType::SDL_EVENT_WINDOW_FIRST
-        && event->type <= EventType::SDL_EVENT_WINDOW_LAST)
+        event->type >= TYPE::SDL_EVENT_WINDOW_FIRST
+        && event->type <= TYPE::SDL_EVENT_WINDOW_LAST)
       {
         return visit(
           [&event](auto &&window) { return window->Event(event->window); },
