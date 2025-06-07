@@ -47,8 +47,6 @@ public:
     return instances.end();
   }
 };
-
-using Default = Renderer;
 }
 
 struct WindowEvents
