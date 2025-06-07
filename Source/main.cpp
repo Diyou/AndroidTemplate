@@ -91,7 +91,8 @@ struct App::Main
         if (handler.window->first == event->window.windowID) [[unlikely]] {
           running = false;
         }
-      default: return handler.Event(event);
+      default:
+        return handler.Event(event);
     }
   }
 

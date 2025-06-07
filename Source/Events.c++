@@ -98,6 +98,33 @@ struct WindowEvents
   virtual void
   OnCloseRequest(SDL_WindowEvent &) {};
 
+  virtual void
+  OnHitTest(SDL_WindowEvent &) {};
+
+  virtual void
+  OnICCProfileChanged(SDL_WindowEvent &) {};
+
+  virtual void
+  OnDisplayChanged(SDL_WindowEvent &) {};
+
+  virtual void
+  OnDisplayScaleChanged(SDL_WindowEvent &) {};
+
+  virtual void
+  OnSafeAreaChanged(SDL_WindowEvent &) {};
+
+  virtual void
+  OnOccluded(SDL_WindowEvent &) {};
+
+  virtual void
+  OnEnterFullscreen(SDL_WindowEvent &) {};
+
+  virtual void
+  OnLeaveFullscreen(SDL_WindowEvent &) {};
+
+  virtual void
+  OnHDRStateChanged(SDL_WindowEvent &) {};
+
   template< typename Self >
   SDL_AppResult
   WindowEvent(this Self &&self, SDL_WindowEvent &event)
@@ -105,42 +132,82 @@ struct WindowEvents
     using TYPE = SDL_EventType;
 
     switch (event.type) {
-      case TYPE::SDL_EVENT_WINDOW_SHOWN  : self.OnShow(event); break;
-      case TYPE::SDL_EVENT_WINDOW_HIDDEN : self.OnHide(event); break;
-      case TYPE::SDL_EVENT_WINDOW_EXPOSED: self.OnExposed(event); break;
-      case TYPE::SDL_EVENT_WINDOW_MOVED  : self.OnMoved(event); break;
-      case TYPE::SDL_EVENT_WINDOW_RESIZED: self.OnResized(event); break;
+      case TYPE::SDL_EVENT_WINDOW_SHOWN:
+        self.OnShow(event);
+        break;
+      case TYPE::SDL_EVENT_WINDOW_HIDDEN:
+        self.OnHide(event);
+        break;
+      case TYPE::SDL_EVENT_WINDOW_EXPOSED:
+        self.OnExposed(event);
+        break;
+      case TYPE::SDL_EVENT_WINDOW_MOVED:
+        self.OnMoved(event);
+        break;
+      case TYPE::SDL_EVENT_WINDOW_RESIZED:
+        self.OnResized(event);
+        break;
       case TYPE::SDL_EVENT_WINDOW_PIXEL_SIZE_CHANGED:
         self.OnPixelSizeChanged(event);
         break;
       case TYPE::SDL_EVENT_WINDOW_METAL_VIEW_RESIZED:
         self.OnMetalViewResized(event);
         break;
-      case TYPE::SDL_EVENT_WINDOW_MINIMIZED  : self.OnMinimized(event); break;
-      case TYPE::SDL_EVENT_WINDOW_MAXIMIZED  : self.OnMaximized(event); break;
-      case TYPE::SDL_EVENT_WINDOW_RESTORED   : self.OnRestored(event); break;
-      case TYPE::SDL_EVENT_WINDOW_MOUSE_ENTER: self.OnMouseEnter(event); break;
-      case TYPE::SDL_EVENT_WINDOW_MOUSE_LEAVE: self.OnMouseLeave(event); break;
+      case TYPE::SDL_EVENT_WINDOW_MINIMIZED:
+        self.OnMinimized(event);
+        break;
+      case TYPE::SDL_EVENT_WINDOW_MAXIMIZED:
+        self.OnMaximized(event);
+        break;
+      case TYPE::SDL_EVENT_WINDOW_RESTORED:
+        self.OnRestored(event);
+        break;
+      case TYPE::SDL_EVENT_WINDOW_MOUSE_ENTER:
+        self.OnMouseEnter(event);
+        break;
+      case TYPE::SDL_EVENT_WINDOW_MOUSE_LEAVE:
+        self.OnMouseLeave(event);
+        break;
       case TYPE::SDL_EVENT_WINDOW_FOCUS_GAINED:
         self.OnFocusGained(event);
         break;
-      case TYPE::SDL_EVENT_WINDOW_FOCUS_LOST: self.OnFocusLost(event); break;
+      case TYPE::SDL_EVENT_WINDOW_FOCUS_LOST:
+        self.OnFocusLost(event);
+        break;
       case TYPE::SDL_EVENT_WINDOW_CLOSE_REQUESTED:
         self.OnCloseRequest(event);
         break;
       case TYPE::SDL_EVENT_WINDOW_HIT_TEST:
+        self.OnHitTest(event);
+        break;
       case TYPE::SDL_EVENT_WINDOW_ICCPROF_CHANGED:
+        self.OnICCProfileChanged(event);
+        break;
       case TYPE::SDL_EVENT_WINDOW_DISPLAY_CHANGED:
+        self.OnDisplayChanged(event);
+        break;
       case TYPE::SDL_EVENT_WINDOW_DISPLAY_SCALE_CHANGED:
+        self.OnDisplayScaleChanged(event);
+        break;
       case TYPE::SDL_EVENT_WINDOW_SAFE_AREA_CHANGED:
+        self.OnSafeAreaChanged(event);
+        break;
       case TYPE::SDL_EVENT_WINDOW_OCCLUDED:
+        self.OnOccluded(event);
+        break;
       case TYPE::SDL_EVENT_WINDOW_ENTER_FULLSCREEN:
-      case TYPE::SDL_EVENT_WINDOW_LEAVE_FULLSCREEN     : break;
+        self.OnEnterFullscreen(event);
+      case TYPE::SDL_EVENT_WINDOW_LEAVE_FULLSCREEN:
+        self.OnLeaveFullscreen(event);
+        break;
       case TYPE::SDL_EVENT_WINDOW_DESTROYED:
         Windows::Container::Remove(event.windowID);
         break;
       case TYPE::SDL_EVENT_WINDOW_HDR_STATE_CHANGED:
-      default                                      : break;
+        self.OnHDRStateChanged(event);
+        break;
+      default:
+        break;
     }
     return SDL_APP_CONTINUE;
   }

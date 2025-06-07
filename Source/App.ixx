@@ -33,7 +33,8 @@ MainEventHandler::Event(SDL_Event *event) const
 {
   using TYPE = SDL_EventType;
   switch (event->type) {
-    case TYPE::SDL_EVENT_QUIT: return SDL_APP_SUCCESS;
+    case TYPE::SDL_EVENT_QUIT:
+      return SDL_APP_SUCCESS;
     default:
       if (
         event->type >= TYPE::SDL_EVENT_WINDOW_FIRST
