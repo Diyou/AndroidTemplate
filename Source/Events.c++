@@ -32,13 +32,10 @@ public:
 
   template< typename Variant, typename... Args >
   static pair< iterator, bool >
-  Emplace(SDL_Window *window, Args &&...args)
+  Emplace(Args &&...args)
   {
-    return instances.emplace(
-      SDL_GetWindowID(window),
-      Variants(
-        in_place_type< unique_ptr< Variant > >,
-        make_unique< Variant >(std::forward< Args >(args)...)));
+    auto window = make_unique< Variant >(std::forward< Args >(args)...);
+    return instances.emplace(window->GetID(), std::move(window));
   }
 
   static iterator

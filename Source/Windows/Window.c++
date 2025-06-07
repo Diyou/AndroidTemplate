@@ -4,6 +4,7 @@ module;
 #  include <string>
 #endif
 #include <SDL3/SDL.h>
+#include <cassert>
 module App:Window;
 
 #ifdef CMAKE_IMPORT_STD
@@ -17,36 +18,44 @@ using namespace std;
 
 struct Window : WindowEvents
 {
+  SDL_Window       *handle         = nullptr;
   static inline int DEFAULT_WIDTH  = 720;
   static inline int DEFAULT_HEIGHT = 480;
 
-  SDL_Window       *window;
-
-  Window(SDL_Window *window)
-  : window{window}
-  {}
-
   [[nodiscard]]
-  SDL_AppResult
+  virtual SDL_AppResult
   Iterate() const
   {
     return SDL_APP_CONTINUE;
   }
 
-  template< typename Variant, typename... Args >
-  static pair< Container::iterator, bool >
-  Create(SDL_Window *window, Args &&...args)
+  [[nodiscard]]
+  SDL_WindowID
+  GetID() const
   {
-    return Container::Emplace< Variant >(window, std::forward< Args >(args)...);
+    return SDL_GetWindowID(handle);
   }
 
-  ~Window() { SDL_DestroyWindow(window); }
+  template< typename Variant, typename... Args >
+  static pair< Container::iterator, bool >
+  Create(Args &&...args)
+  {
+    return Container::Emplace< Variant >(std::forward< Args >(args)...);
+  }
 };
 
 struct BasicWindow : Window
 {
-  BasicWindow(SDL_Window *window)
-  : Window{window}
-  {}
+  BasicWindow(
+    string const   &title,
+    SDL_WindowFlags flags  = 0,
+    int             width  = DEFAULT_WIDTH,
+    int             height = DEFAULT_HEIGHT)
+  {
+    handle = SDL_CreateWindow(title.c_str(), width, height, flags);
+    assert(handle != nullptr);
+  }
+
+  ~BasicWindow() { SDL_DestroyWindow(handle); }
 };
 }

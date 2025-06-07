@@ -5,6 +5,7 @@ module;
 #  include <variant>
 #endif
 #include <SDL3/SDL.h>
+#include <cassert>
 module App:Renderer;
 
 #ifdef CMAKE_IMPORT_STD
@@ -18,7 +19,7 @@ import Logger;
 namespace Windows {
 using namespace std;
 
-struct Renderer : Window
+struct Renderer : BasicWindow
 {
   using Variant                    = Renderer;
   static inline int DEFAULT_WIDTH  = 600;
@@ -26,10 +27,15 @@ struct Renderer : Window
 
   SDL_Renderer     *renderer;
 
-  Renderer(SDL_Window *window, SDL_Renderer *renderer)
-  : Window{window}
-  , renderer{renderer}
+  Renderer(
+    string const   &title,
+    SDL_WindowFlags flags  = 0,
+    int             width  = DEFAULT_WIDTH,
+    int             height = DEFAULT_HEIGHT)
+  : BasicWindow{title, flags, width, height}
+  , renderer{SDL_CreateRenderer(handle, nullptr)}
   {
+    assert(renderer != nullptr);
     SDL_SetRenderVSync(renderer, SDL_RENDERER_VSYNC_ADAPTIVE);
   }
 
@@ -43,32 +49,12 @@ struct Renderer : Window
 
   [[nodiscard]]
   SDL_AppResult
-  Iterate() const
+  Iterate() const final
   {
     SDL_SetRenderDrawColor(renderer, 0x00, 0xd0, 0xd0, 0xff);
     SDL_RenderClear(renderer);
     SDL_RenderPresent(renderer);
     return Window::Iterate();
-  }
-
-  static decltype(Container::Emplace< Variant >(nullptr))
-  Create(
-    string const   &title,
-    SDL_WindowFlags flags  = 0,
-    int             width  = DEFAULT_WIDTH,
-    int             height = DEFAULT_HEIGHT)
-  {
-    auto *window = SDL_CreateWindow(title.c_str(), width, height, flags);
-    if (window == nullptr) [[unlikely]] {
-      return {Container::end(), false};
-    }
-
-    auto *renderer = SDL_CreateRenderer(window, nullptr);
-    if (renderer == nullptr) [[unlikely]] {
-      return {Container::end(), false};
-    }
-
-    return Window::Create< Variant >(window, window, renderer);
   }
 
   ~Renderer() { SDL_DestroyRenderer(renderer); }

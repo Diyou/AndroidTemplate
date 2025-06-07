@@ -58,7 +58,7 @@ struct App::Main
       }
     }
 
-    auto [it, created] = Window::Create(
+    auto [it, created] = Window::Create< Window >(
       App::Executable(),
       dotcmake::Platform::MOBILE
         ? SDL_WINDOW_FULLSCREEN
