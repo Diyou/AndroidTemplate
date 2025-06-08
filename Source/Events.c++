@@ -14,32 +14,24 @@ import std;
 using namespace std;
 
 namespace Windows {
-using Variants =
-  variant< unique_ptr< struct BasicWindow >, unique_ptr< struct Renderer > >;
+using Variants = variant< struct BasicWindow, struct Renderer >;
 
 class Container
 {
-  static unordered_map< SDL_WindowID, Variants > instances;
+  static unordered_map< SDL_WindowID, unique_ptr< Variants > > instances;
 
 public:
   using iterator = decltype(instances)::iterator;
 
-  static Variants &
-  Get(SDL_WindowID windowID)
-  {
-    return instances.at(windowID);
-  }
+  static iterator::value_type::second_type const &
+  Get(SDL_WindowID windowID);
 
   static iterator
   Remove(SDL_WindowID windowID);
 
   template< typename Variant, typename... Args >
   static pair< iterator, bool >
-  Emplace(Args &&...args)
-  {
-    auto window = make_unique< Variant >(std::forward< Args >(args)...);
-    return instances.emplace(window->GetID(), std::move(window));
-  }
+  Emplace(Args &&...args);
 
   static iterator
   End()

@@ -104,7 +104,7 @@ struct App::Main
       return SDL_APP_SUCCESS;
     }
     return visit(
-      [](auto &&arg) { return arg->Iterate(); }, handler.window->second);
+      [](auto &arg) { return arg.Iterate(); }, *handler.window->second);
   }
 
   static void
