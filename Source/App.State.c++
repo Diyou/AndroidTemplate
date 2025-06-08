@@ -5,7 +5,9 @@ module;
 #  include <unordered_set>
 #  include <vector>
 #endif
-#include <SDL3/SDL.h>
+#include <SDL3/SDL_hints.h>
+#include <SDL3/SDL_init.h>
+#include <SDL3/SDL_log.h>
 module App:App;
 
 #ifdef CMAKE_IMPORT_STD

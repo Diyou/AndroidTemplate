@@ -3,7 +3,7 @@ module;
 #  include <unordered_map>
 #  include <variant>
 #endif
-#include <SDL3/SDL.h>
+#include <SDL3/SDL_video.h>
 export module App;
 
 import :Windows;
@@ -33,38 +33,17 @@ Container::Remove(SDL_WindowID windowID)
 }
 
 template< typename Variant, typename... Args >
-pair< Container::iterator, bool >
+decltype(Container::instances.emplace(0))
 Container::Emplace(Args &&...args)
 {
-  auto window = make_unique< Variants >(
+  using value_t = iterator::value_type;
+  auto value    = make_unique< value_t::second_type::element_type >(
     in_place_type< Variant >, std::forward< Args >(args)...);
 
-  SDL_WindowID const windowID =
-    visit([](auto const &window) { return window.GetID(); }, *window);
+  value_t::first_type const key =
+    visit([](auto const &window) { return window.GetID(); }, *value);
 
-  return instances.emplace(windowID, std::move(window));
+  return instances.emplace(key, std::move(value));
 }
 
-}
-
-// Events.c++
-SDL_AppResult
-MainEventHandler::Event(SDL_Event *event) const
-{
-  using TYPE = SDL_EventType;
-  switch (event->type) {
-    case TYPE::SDL_EVENT_QUIT:
-      return SDL_APP_SUCCESS;
-    default:
-      if (
-        event->type >= TYPE::SDL_EVENT_WINDOW_FIRST
-        && event->type <= TYPE::SDL_EVENT_WINDOW_LAST)
-      {
-        return visit(
-          [&event](auto &window) { return window.WindowEvent(event->window); },
-          *Windows::Container::Get(event->window.windowID));
-      }
-      break;
-  }
-  return SDL_APP_CONTINUE;
 }

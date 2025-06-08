@@ -14,14 +14,36 @@ import :App;
 import :Events;
 
 using namespace std;
+using RESULT = SDL_AppResult;
 
 struct App::Main
 {
   using Window = Windows::Default;
 
-  struct MainWindow : MainEventHandler
+  struct MainWindow
   {
     Windows::Container::iterator window;
+
+    SDL_AppResult
+    Event(SDL_Event *event) const
+    {
+      switch (event->type) {
+        using TYPE = SDL_EventType;
+        case TYPE::SDL_EVENT_QUIT:
+          return RESULT::SDL_APP_SUCCESS;
+        default:
+          if (
+            event->type >= TYPE::SDL_EVENT_WINDOW_FIRST
+            && event->type <= TYPE::SDL_EVENT_WINDOW_LAST)
+          {
+            return visit(
+              [&event](auto &window) { return window.Event(event->window); },
+              *Windows::Container::Get(event->window.windowID));
+          }
+          break;
+      }
+      return RESULT::SDL_APP_CONTINUE;
+    }
   };
 
   // avoids heap allocation
@@ -41,7 +63,7 @@ struct App::Main
     {
       SDL_LogError(
         SDL_LOG_CATEGORY_ERROR, "SDL_Init failed: %s", SDL_GetError());
-      return SDL_APP_FAILURE;
+      return RESULT::SDL_APP_FAILURE;
     }
 
     SDL_Rect bounds{0, 0, Window::DEFAULT_WIDTH, Window::DEFAULT_HEIGHT};
@@ -55,7 +77,7 @@ struct App::Main
           SDL_LOG_CATEGORY_ERROR,
           "SDL_GetDisplayBounds failed: %s",
           SDL_GetError());
-        return SDL_APP_FAILURE;
+        return RESULT::SDL_APP_FAILURE;
       }
     }
 
@@ -70,14 +92,14 @@ struct App::Main
     if (!created) [[unlikely]] {
       SDL_LogError(
         SDL_LOG_CATEGORY_ERROR, "Window::Create() failed: %s", SDL_GetError());
-      return SDL_APP_FAILURE;
+      return RESULT::SDL_APP_FAILURE;
     }
 
     handler.window = it;
 
     *appstate      = &runtime;
 
-    return SDL_APP_CONTINUE;
+    return RESULT::SDL_APP_CONTINUE;
   }
 
   using Pointer = decltype(runtime) *;
@@ -87,7 +109,8 @@ struct App::Main
   {
     auto &[app, handler, running] = *Pointer(appstate);
     switch (event->type) {
-      case SDL_EventType::SDL_EVENT_WINDOW_DESTROYED:
+      using TYPE = SDL_EventType;
+      case TYPE::SDL_EVENT_WINDOW_DESTROYED:
         if (handler.window->first == event->window.windowID) [[unlikely]] {
           running = false;
         }
@@ -101,10 +124,10 @@ struct App::Main
   {
     auto &[app, handler, running] = *Pointer(appstate);
     if (!running) [[unlikely]] {
-      return SDL_APP_SUCCESS;
+      return RESULT::SDL_APP_SUCCESS;
     }
     return visit(
-      [](auto &arg) { return arg.Iterate(); }, *handler.window->second);
+      [](auto &window) { return window.Iterate(); }, *handler.window->second);
   }
 
   static void

@@ -3,7 +3,7 @@ module;
 #  include <format>
 #  include <source_location>
 #endif
-#include <SDL3/SDL.h>
+#include <SDL3/SDL_log.h>
 export module Logger;
 
 #ifdef CMAKE_IMPORT_STD

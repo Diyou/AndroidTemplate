@@ -3,7 +3,7 @@ module;
 #  include <string_view>
 #  include <unordered_map>
 #endif
-#include <SDL3/SDL.h>
+#include <SDL3/SDL_init.h>
 module App:Events;
 
 #ifdef CMAKE_IMPORT_STD
@@ -30,7 +30,7 @@ public:
   Remove(SDL_WindowID windowID);
 
   template< typename Variant, typename... Args >
-  static pair< iterator, bool >
+  static decltype(instances.emplace(0))
   Emplace(Args &&...args);
 
   static iterator
@@ -39,9 +39,8 @@ public:
     return instances.end();
   }
 };
-}
 
-struct WindowEvents
+struct Events
 {
   virtual void
   OnShow(SDL_WindowEvent &) {};
@@ -117,11 +116,10 @@ struct WindowEvents
 
   template< typename Self >
   SDL_AppResult
-  WindowEvent(this Self &&self, SDL_WindowEvent &event)
+  Event(this Self &&self, SDL_WindowEvent &event)
   {
-    using TYPE = SDL_EventType;
-
     switch (event.type) {
+      using TYPE = SDL_EventType;
       case TYPE::SDL_EVENT_WINDOW_SHOWN:
         self.OnShow(event);
         break;
@@ -205,12 +203,7 @@ struct WindowEvents
       default:
         break;
     }
-    return SDL_APP_CONTINUE;
+    return SDL_AppResult::SDL_APP_CONTINUE;
   }
 };
-
-struct MainEventHandler
-{
-  SDL_AppResult
-  Event(SDL_Event *event) const;
-};
+}

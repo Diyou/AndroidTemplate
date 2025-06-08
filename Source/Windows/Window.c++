@@ -4,7 +4,7 @@ module;
 #  include <string>
 #  include <unordered_map>
 #endif
-#include <SDL3/SDL.h>
+#include <SDL3/SDL_init.h>
 #include <cassert>
 module App:Window;
 
@@ -17,7 +17,7 @@ import :Events;
 namespace Windows {
 using namespace std;
 
-struct Window : WindowEvents
+struct Window : Events
 {
   SDL_Window       *handle          = nullptr;
   bool              minimizeOnClose = false;
