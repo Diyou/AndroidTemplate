@@ -18,9 +18,11 @@ using namespace std;
 
 struct Window : WindowEvents
 {
-  SDL_Window       *handle         = nullptr;
-  static inline int DEFAULT_WIDTH  = 720;
-  static inline int DEFAULT_HEIGHT = 480;
+  SDL_Window       *handle          = nullptr;
+  bool              minimizeOnClose = false;
+
+  static inline int DEFAULT_WIDTH   = 720;
+  static inline int DEFAULT_HEIGHT  = 480;
 
   [[nodiscard]]
   virtual SDL_AppResult

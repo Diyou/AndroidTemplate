@@ -166,6 +166,12 @@ struct WindowEvents
         break;
       case TYPE::SDL_EVENT_WINDOW_CLOSE_REQUESTED:
         self.OnCloseRequest(event);
+        if (self.minimizeOnClose) {
+          self.Minimize();
+        }
+        else {
+          self.Destroy();
+        }
         break;
       case TYPE::SDL_EVENT_WINDOW_HIT_TEST:
         self.OnHitTest(event);

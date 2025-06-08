@@ -25,7 +25,6 @@ struct Renderer : BasicWindow
   static inline int DEFAULT_HEIGHT = 800;
 
   SDL_Renderer     *renderer;
-  bool              minimizeOnClose = false;
 
   Renderer(
     string const   &title,
@@ -45,17 +44,7 @@ struct Renderer : BasicWindow
   {
     auto const &width  = event.data1;
     auto const &height = event.data2;
-  }
-
-  void
-  OnCloseRequest(SDL_WindowEvent &event) final
-  {
-    if (minimizeOnClose) {
-      Minimize();
-    }
-    else {
-      Destroy();
-    }
+    cout << "Resized\n";
   }
 
   [[nodiscard]]
