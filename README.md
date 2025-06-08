@@ -15,3 +15,11 @@ Toolchain abstractions via [dotcmake](https://github.com/Diyou/.cmake)
 - [Global App instance](Source/App.State.c++)
 - [Event-Mapping](Source/Events.c++) (With static dispatch)
 - [Basic Window class with default Renderer](Source/Windows/Renderer.c++)
+
+### How-to:
+
+ - Just edit [Renderer.c++](Source/Windows/Renderer.c++)
+ - Or
+    1. Create a new partiton in Source/Windows with a new struct     inheriting from [Window](Source/Windows/Window.c++)
+    2. Modify [Variants](Source/Variants.c++) to include the new Window variant
+    3. Add the partition in [Windows.c++](Source/Windows.c++)

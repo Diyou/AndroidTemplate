@@ -2,6 +2,7 @@ module;
 #ifndef CMAKE_IMPORT_STD
 #  include <memory>
 #  include <string>
+#  include <unordered_map>
 #endif
 #include <SDL3/SDL.h>
 #include <cassert>
@@ -23,6 +24,16 @@ struct Window : WindowEvents
 
   static inline int DEFAULT_WIDTH   = 720;
   static inline int DEFAULT_HEIGHT  = 480;
+
+  Window(
+    string const   &title,
+    SDL_WindowFlags flags  = 0,
+    int             width  = DEFAULT_WIDTH,
+    int             height = DEFAULT_HEIGHT)
+  {
+    handle = SDL_CreateWindow(title.c_str(), width, height, flags);
+    assert(handle != nullptr);
+  }
 
   [[nodiscard]]
   virtual SDL_AppResult
@@ -67,19 +78,6 @@ struct Window : WindowEvents
   Create(Args &&...args)
   {
     return Container::Emplace< Variant >(std::forward< Args >(args)...);
-  }
-};
-
-struct BasicWindow : Window
-{
-  BasicWindow(
-    string const   &title,
-    SDL_WindowFlags flags  = 0,
-    int             width  = DEFAULT_WIDTH,
-    int             height = DEFAULT_HEIGHT)
-  {
-    handle = SDL_CreateWindow(title.c_str(), width, height, flags);
-    assert(handle != nullptr);
   }
 };
 }

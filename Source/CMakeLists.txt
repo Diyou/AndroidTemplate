@@ -10,6 +10,7 @@ PUBLIC
         App.State.c++
         Logger.c++
         Events.c++
+        Variants.c++
         Windows.c++
             Windows/Window.c++
             Windows/Renderer.c++

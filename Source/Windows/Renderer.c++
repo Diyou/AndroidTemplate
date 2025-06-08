@@ -19,7 +19,7 @@ import Logger;
 namespace Windows {
 using namespace std;
 
-struct Renderer : BasicWindow
+struct Renderer : Window
 {
   static inline int DEFAULT_WIDTH  = 600;
   static inline int DEFAULT_HEIGHT = 800;
@@ -31,7 +31,7 @@ struct Renderer : BasicWindow
     SDL_WindowFlags flags  = 0,
     int             width  = DEFAULT_WIDTH,
     int             height = DEFAULT_HEIGHT)
-  : BasicWindow{title, flags, width, height}
+  : Window{title, flags, width, height}
   , renderer{SDL_CreateRenderer(handle, nullptr)}
   {
     assert(renderer != nullptr);
@@ -44,7 +44,6 @@ struct Renderer : BasicWindow
   {
     auto const &width  = event.data1;
     auto const &height = event.data2;
-    cout << "Resized\n";
   }
 
   [[nodiscard]]
@@ -54,14 +53,14 @@ struct Renderer : BasicWindow
     SDL_SetRenderDrawColor(renderer, 0x00, 0xd0, 0xd0, 0xff);
     SDL_RenderClear(renderer);
     SDL_RenderPresent(renderer);
-    return BasicWindow::Iterate();
+    return Window::Iterate();
   }
 
   void
   Destroy() const
   {
     SDL_DestroyRenderer(renderer);
-    BasicWindow::Destroy();
+    Window::Destroy();
   }
 };
 }

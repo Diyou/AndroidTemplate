@@ -2,7 +2,6 @@ module;
 #ifndef CMAKE_IMPORT_STD
 #  include <string_view>
 #  include <unordered_map>
-#  include <variant>
 #endif
 #include <SDL3/SDL.h>
 module App:Events;
@@ -11,10 +10,11 @@ module App:Events;
 import std;
 #endif
 
+import :Variants;
+
 using namespace std;
 
 namespace Windows {
-using Variants = variant< struct BasicWindow, struct Renderer >;
 
 class Container
 {
