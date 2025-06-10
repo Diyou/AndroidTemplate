@@ -1,6 +1,14 @@
+import java.util.Locale
+import java.util.Calendar
+import java.util.TimeZone
+
+import dev.dotcmake.Config
+import dev.dotcmake.CMake
+
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
+    alias(libs.plugins.kotlin.serialization)
 }
 
 android {
@@ -9,18 +17,39 @@ android {
     ndkVersion = "29.0.13113456"
 
     defaultConfig {
-        applicationId = "com.diyou.dotcmake"
         minSdk = 26
         targetSdk = 36
-        versionCode = 1
-        versionName = "1.0"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
 
+        val timezone = TimeZone.getTimeZone("UTC")
+        val calendar = Calendar.getInstance(timezone, Locale.ROOT)
+
+        val year    = calendar.get(Calendar.YEAR) - 2000
+        val day     = calendar.get(Calendar.DAY_OF_YEAR)
+        val minute  = calendar.get(Calendar.HOUR_OF_DAY) * 60 + calendar.get(Calendar.MINUTE)
+
+        versionCode = (year * 1_000_000) + (day * 10_000) + minute
+
+        val sourceRoot: File = rootProject.file("../..")
+
+        val configFile = File(sourceRoot, "Project.json")
+
+        val config: Config = CMake.readConfig(configFile)
+        applicationId = config.Project.id
+        versionName = config.Project.version
+        resValue("string", "app_name", config.Project.name)
+
         externalNativeBuild {
             cmake {
-                arguments += "-DCMAKE_PROJECT_TOP_LEVEL_INCLUDES=${project.file("../../../.cmake/ToolChains/gradle/callback.cmake").absolutePath}"
+                arguments += "-DCMAKE_PROJECT_TOP_LEVEL_INCLUDES=${File(sourceRoot,".cmake/ToolChains/gradle/callback.cmake").absolutePath}"
             }
+        }
+
+        // Remove for 32bit support
+        ndk {
+            abiFilters.clear()
+            abiFilters += listOf("arm64-v8a", "x86_64")
         }
     }
 
@@ -33,12 +62,13 @@ android {
             )
         }
     }
+
     compileOptions {
-        sourceCompatibility = JavaVersion.VERSION_11
-        targetCompatibility = JavaVersion.VERSION_11
+        sourceCompatibility = JavaVersion.VERSION_17
+        targetCompatibility = JavaVersion.VERSION_17
     }
     kotlinOptions {
-        jvmTarget = "11"
+        jvmTarget = "17"
     }
     externalNativeBuild {
         cmake {
@@ -61,6 +91,7 @@ dependencies {
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
+    implementation(libs.kotlinx.serialization.json)
 
     implementation(files("libs/SDL3/SDL3-3.2.14.aar"))
 }

@@ -15,6 +15,7 @@ import std;
 import :Events;
 
 namespace Windows {
+
 using namespace std;
 
 struct Window : Events
@@ -80,4 +81,5 @@ struct Window : Events
     return Container::Emplace< Variant >(std::forward< Args >(args)...);
   }
 };
+
 }

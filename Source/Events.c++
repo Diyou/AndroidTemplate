@@ -30,7 +30,7 @@ public:
   Remove(SDL_WindowID windowID);
 
   template< typename Variant, typename... Args >
-  static decltype(instances.emplace(0))
+  static pair< iterator, bool >
   Emplace(Args &&...args);
 
   static iterator
@@ -206,4 +206,5 @@ struct Events
     return SDL_AppResult::SDL_APP_CONTINUE;
   }
 };
+
 }

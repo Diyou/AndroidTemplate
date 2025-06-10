@@ -19,6 +19,7 @@ import :App;
 import Logger;
 
 namespace Windows {
+
 using namespace std;
 
 struct Renderer : Window
@@ -65,4 +66,5 @@ struct Renderer : Window
     Window::Destroy();
   }
 };
+
 }

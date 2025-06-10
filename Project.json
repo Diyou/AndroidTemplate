@@ -1,0 +1,10 @@
+{
+  "$schema": ".cmake/Project.schema.json",
+  "Project": {
+    "name": "HelloSDL",
+    "id": "dev.diyou.sdltemplate",
+    "version": "0.0.1",
+    "description": "A multi-platform template for SDL3 apps",
+    "url": "https://wiki.libsdl.org/SDL3/FrontPage"
+  }
+}

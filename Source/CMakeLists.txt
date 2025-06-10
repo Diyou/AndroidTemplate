@@ -9,7 +9,7 @@ PUBLIC
         App.ixx
         App.State.c++
         Logger.c++
-        Events.c++
+        Events.c++      Events.impl.c++
         Variants.c++
         Windows.c++
             Windows/Window.c++

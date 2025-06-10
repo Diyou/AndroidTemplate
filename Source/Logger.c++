@@ -16,45 +16,44 @@ using namespace std;
 
 using location = source_location;
 
-export
+export {
+template< auto F >
+void inline Log(string const &text, location current = location::current())
 {
-  template< auto F >
-  void inline Log(string const &text, location current = location::current())
-  {
-    using VoidFunction = void (*)();
-    auto const print   = format(
-      "[{}:{}][{}({})] {}\n",
-      current.line(),
-      current.column(),
-      VoidFunction(F),
-      dotcmake::GetFunctionName< F >(),
-      text);
-    SDL_Log("%s", print);
-  }
+  using VoidFunction = void (*)();
+  auto const print   = format(
+    "[{}:{}][{}({})] {}\n",
+    current.line(),
+    current.column(),
+    VoidFunction(F),
+    dotcmake::GetFunctionName< F >(),
+    text);
+  SDL_Log("%s", print);
+}
 
-  void inline Log(string const &text, location current = location::current())
-  {
-    auto const print = format(
-      "[{}:{}][{}] {}\n",
-      current.line(),
-      current.column(),
-      current.function_name(),
-      text);
-    SDL_Log("%s", print.c_str());
-  }
+void inline Log(string const &text, location current = location::current())
+{
+  auto const print = format(
+    "[{}:{}][{}] {}\n",
+    current.line(),
+    current.column(),
+    current.function_name(),
+    text);
+  SDL_Log("%s", print.c_str());
+}
 
-  template< auto F >
-  void inline Debug(string const &text, location current = location::current())
-  {
-    if constexpr (dotcmake::Compiler::DEBUG) {
-      Log< F >(text, current);
-    }
+template< auto F >
+void inline Debug(string const &text, location current = location::current())
+{
+  if constexpr (dotcmake::Compiler::DEBUG) {
+    Log< F >(text, current);
   }
+}
 
-  void inline Debug(string const &text, location current = location::current())
-  {
-    if constexpr (dotcmake::Compiler::DEBUG) {
-      Log(text, current);
-    }
+void inline Debug(string const &text, location current = location::current())
+{
+  if constexpr (dotcmake::Compiler::DEBUG) {
+    Log(text, current);
   }
+}
 }

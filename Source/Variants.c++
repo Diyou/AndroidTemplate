@@ -9,5 +9,7 @@ import std;
 #endif
 
 namespace Windows {
+
 using Variants = std::variant< struct Window, struct Renderer >;
+
 }
