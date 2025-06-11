@@ -11,7 +11,7 @@ env:
 jobs:
   build:
     runs-on: ubuntu-24.04
-    container: emscripten/emsdk:4.0.9
+    container: emscripten/emsdk:4.0.10
 
     steps:
       - uses: actions/checkout@v4
