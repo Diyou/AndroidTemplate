@@ -5,6 +5,7 @@ module;
 #  include <variant>
 #endif
 #define SDL_MAIN_USE_CALLBACKS
+#include <SDL3/SDL_hints.h>
 #include <SDL3/SDL_log.h>
 #include <SDL3/SDL_main.h>
 module App;
@@ -44,20 +45,21 @@ struct App::Main
   };
 
   // avoids heap allocation
-  alignas(App) static inline array< byte, sizeof(App) > appStackBuffer;
+  alignas(App) static inline array< byte, sizeof(App) > appBuffer;
   static inline tuple< App *, MainWindow, bool > runtime;
 
   static SDL_AppResult
   Init(void **appstate, int argc, char **argv)
   {
+    // This is required for cleanup and graceful close
+    SDL_SetHint(SDL_HINT_QUIT_ON_LAST_WINDOW_CLOSE, "0");
+
     auto &[app, handler, running] = runtime;
-    app                           = new (appStackBuffer.data()) App{argc, argv};
+    app                           = new (appBuffer.data()) App{argc, argv};
     App::instance                 = app;
     running                       = true;
 
-    if (!SDL_Init(SDL_INIT_VIDEO | SDL_INIT_AUDIO | SDL_INIT_GAMEPAD))
-      [[unlikely]]
-    {
+    if (!SDL_Init(App::INIT_FLAGS)) [[unlikely]] {
       SDL_LogError(
         SDL_LOG_CATEGORY_ERROR, "SDL_Init failed: %s", SDL_GetError());
       return RESULT::SDL_APP_FAILURE;
@@ -80,9 +82,9 @@ struct App::Main
 
     auto const &[window, created] = Window::Create< Window >(
       App::Executable(),
-      dotcmake::Platform::MOBILE
-        ? SDL_WINDOW_FULLSCREEN
-        : SDL_WINDOW_RESIZABLE | SDL_WINDOW_TRANSPARENT,
+      dotcmake::Platform::MOBILE ? SDL_WINDOW_FULLSCREEN
+      : dotcmake::Platform::Web  ? SDL_WINDOW_BORDERLESS
+                                : SDL_WINDOW_RESIZABLE | SDL_WINDOW_TRANSPARENT,
       bounds.w,
       bounds.h);
 

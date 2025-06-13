@@ -14,6 +14,8 @@ module App:Renderer;
 import std;
 #endif
 
+import dotcmake;
+
 import :Window;
 import :App;
 import Logger;
@@ -38,7 +40,8 @@ struct Renderer : Window
   , renderer{SDL_CreateRenderer(handle, nullptr)}
   {
     assert(renderer != nullptr);
-    SDL_SetRenderVSync(renderer, SDL_RENDERER_VSYNC_ADAPTIVE);
+    SDL_SetRenderVSync(
+      renderer, dotcmake::Platform::Web ? 1 : SDL_RENDERER_VSYNC_ADAPTIVE);
   }
 
   // Override Window Event

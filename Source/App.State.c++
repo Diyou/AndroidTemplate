@@ -26,6 +26,9 @@ class App
   vector< string_view > const        args;
   unordered_set< string_view > const availableVideoDrivers;
 
+  constexpr static SDL_InitFlags     INIT_FLAGS =
+    SDL_INIT_VIDEO | SDL_INIT_AUDIO | SDL_INIT_GAMEPAD;
+
 public:
   constexpr static string_view NAME       = PROJECT_NAME;
   constexpr static string_view VERSION    = PROJECT_VERSION;
@@ -75,13 +78,10 @@ private:
 
     // Define hints
     if constexpr (dotcmake::Platform::Linux) {
-      if (availableVideoDrivers.contains(VIDEO_DRIVER_WAYLAND.data())) {
+      if (availableVideoDrivers.contains(VIDEO_DRIVER_WAYLAND)) {
         SDL_SetHint(SDL_HINT_VIDEO_DRIVER, VIDEO_DRIVER_WAYLAND.data());
       }
     }
-
-    // This is required for cleanup and graceful close
-    SDL_SetHint(SDL_HINT_QUIT_ON_LAST_WINDOW_CLOSE, "0");
   }
 
   App(int argc, char **argv)
