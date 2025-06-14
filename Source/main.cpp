@@ -8,79 +8,49 @@ module;
 #include <SDL3/SDL_hints.h>
 #include <SDL3/SDL_log.h>
 #include <SDL3/SDL_main.h>
+
 module App;
 import :Events.implementation;
 
 using namespace std;
-using RESULT = SDL_AppResult;
 
 struct App::Main
 {
   using Window = Windows::Default;
 
-  struct MainWindow
-  {
-    Windows::Container::iterator window;
-
-    SDL_AppResult
-    Event(SDL_Event *event) const
-    {
-      switch (event->type) {
-        using TYPE = SDL_EventType;
-        case TYPE::SDL_EVENT_QUIT:
-          return RESULT::SDL_APP_SUCCESS;
-        default:
-          if (
-            event->type >= TYPE::SDL_EVENT_WINDOW_FIRST
-            && event->type <= TYPE::SDL_EVENT_WINDOW_LAST)
-          {
-            return visit(
-              [&event](auto &window) { return window.Event(event->window); },
-              *Windows::Container::Get(event->window.windowID));
-          }
-          break;
-      }
-      return RESULT::SDL_APP_CONTINUE;
-    }
-  };
-
-  // avoids heap allocation
-  alignas(App) static inline array< byte, sizeof(App) > appBuffer;
-  static inline tuple< App *, MainWindow, bool > runtime;
+  alignas(App) static inline array< byte, sizeof(App) > app;
+  static inline tuple< Windows::Container::iterator > runtime;
 
   static SDL_AppResult
   Init(void **appstate, int argc, char **argv)
   {
+    auto &[window] = runtime;
+    App::instance  = new (app.data()) App{argc, argv};
+
     // This is required for cleanup and graceful close
     SDL_SetHint(SDL_HINT_QUIT_ON_LAST_WINDOW_CLOSE, "0");
-
-    auto &[app, handler, running] = runtime;
-    app                           = new (appBuffer.data()) App{argc, argv};
-    App::instance                 = app;
-    running                       = true;
 
     if (!SDL_Init(App::INIT_FLAGS)) [[unlikely]] {
       SDL_LogError(
         SDL_LOG_CATEGORY_ERROR, "SDL_Init failed: %s", SDL_GetError());
-      return RESULT::SDL_APP_FAILURE;
+      return SDL_AppResult::SDL_APP_FAILURE;
     }
 
     SDL_Rect bounds{0, 0, Window::DEFAULT_WIDTH, Window::DEFAULT_HEIGHT};
 
     if constexpr (dotcmake::Platform::MOBILE) {
-      auto const primaryDisplay = SDL_GetPrimaryDisplay();
-      if (primaryDisplay == 0 || !SDL_GetDisplayBounds(primaryDisplay, &bounds))
-        [[unlikely]]
+      auto const display = SDL_GetPrimaryDisplay();
+      if (display == 0 || !SDL_GetDisplayBounds(display, &bounds)) [[unlikely]]
       {
         SDL_LogError(
           SDL_LOG_CATEGORY_ERROR,
           "SDL_GetDisplayBounds failed: %s",
           SDL_GetError());
-        return RESULT::SDL_APP_FAILURE;
+        return SDL_AppResult::SDL_APP_FAILURE;
       }
     }
 
-    auto const &[window, created] = Window::Create< Window >(
+    auto const &[handle, created] = Window::Create< Window >(
       App::Executable(),
       dotcmake::Platform::MOBILE ? SDL_WINDOW_FULLSCREEN
       : dotcmake::Platform::Web  ? SDL_WINDOW_BORDERLESS
@@ -91,14 +61,13 @@ struct App::Main
     if (!created) [[unlikely]] {
       SDL_LogError(
         SDL_LOG_CATEGORY_ERROR, "Window::Create() failed: %s", SDL_GetError());
-      return RESULT::SDL_APP_FAILURE;
+      return SDL_AppResult::SDL_APP_FAILURE;
     }
 
-    handler.window = window;
+    window    = handle;
+    *appstate = &runtime;
 
-    *appstate      = &runtime;
-
-    return RESULT::SDL_APP_CONTINUE;
+    return SDL_AppResult::SDL_APP_CONTINUE;
   }
 
   using Pointer = decltype(runtime) *;
@@ -106,35 +75,39 @@ struct App::Main
   static SDL_AppResult
   Event(void *appstate, SDL_Event *event)
   {
-    auto &[app, handler, running] = *Pointer(appstate);
+    auto &[window] = *Pointer(appstate);
     switch (event->type) {
       using TYPE = SDL_EventType;
-      case TYPE::SDL_EVENT_WINDOW_DESTROYED:
-        if (handler.window->first == event->window.windowID) [[unlikely]] {
-          running = false;
-        }
+      case TYPE::SDL_EVENT_QUIT:
+        return SDL_AppResult::SDL_APP_SUCCESS;
       default:
-        return handler.Event(event);
+        if (
+          event->type >= TYPE::SDL_EVENT_WINDOW_FIRST
+          && event->type <= TYPE::SDL_EVENT_WINDOW_LAST)
+        {
+          return visit(
+            [&event](auto &window) { return window.Event(event->window); },
+            *Windows::Container::Get(event->window.windowID));
+        }
+        break;
     }
+    return SDL_AppResult::SDL_APP_CONTINUE;
   }
 
   static SDL_AppResult
   Iterate(void *appstate)
   {
-    auto &[app, handler, running] = *Pointer(appstate);
-    if (!running) [[unlikely]] {
-      return RESULT::SDL_APP_SUCCESS;
-    }
+    auto &[window] = *Pointer(appstate);
     return visit(
-      [](auto &window) { return window.Iterate(); }, *handler.window->second);
+      [](auto &window) { return window.Iterate(); }, *window->second);
   }
 
   static void
   Quit(void *appstate, SDL_AppResult result)
   {
-    auto &[app, handler, running] = *Pointer(appstate);
+    auto &[window] = *Pointer(appstate);
     SDL_Quit();
-    app->~App();
+    App::State().~App();
   }
 };
 

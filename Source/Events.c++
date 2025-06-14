@@ -196,7 +196,7 @@ struct Events
         break;
       case TYPE::SDL_EVENT_WINDOW_DESTROYED:
         Windows::Container::Remove(event.windowID);
-        break;
+        return SDL_AppResult::SDL_APP_SUCCESS;
       case TYPE::SDL_EVENT_WINDOW_HDR_STATE_CHANGED:
         self.OnHDRStateChanged(event);
         break;
