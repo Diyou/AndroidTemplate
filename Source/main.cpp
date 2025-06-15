@@ -27,7 +27,8 @@ struct App::Main
     auto &[window] = runtime;
     App::instance  = new (app.data()) App{argc, argv};
 
-    // This is required for cleanup and graceful close
+    // This is required to trigger the last SDL_EVENT_WINDOW_DESTROYED
+    // and to not quit when window is configured to minimize on close
     SDL_SetHint(SDL_HINT_QUIT_ON_LAST_WINDOW_CLOSE, "0");
 
     if (!SDL_Init(App::INIT_FLAGS)) [[unlikely]] {

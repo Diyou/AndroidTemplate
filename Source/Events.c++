@@ -201,6 +201,7 @@ struct Events
         self.OnHDRStateChanged(event);
         break;
       default:
+        unreachable();
         break;
     }
     return SDL_AppResult::SDL_APP_CONTINUE;
