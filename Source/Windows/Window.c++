@@ -75,6 +75,7 @@ struct Window : Events
   }
 
   template< typename Variant, typename... Args >
+    requires derived_from< Variant, Window > && is_final_v< Variant >
   static pair< Container::iterator, bool >
   Create(Args &&...args)
   {

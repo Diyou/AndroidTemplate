@@ -24,7 +24,7 @@ namespace Windows {
 
 using namespace std;
 
-struct Renderer : Window
+struct Renderer final : Window
 {
   static inline int DEFAULT_WIDTH  = 600;
   static inline int DEFAULT_HEIGHT = 800;
@@ -46,7 +46,7 @@ struct Renderer : Window
 
   // Override Window Event
   void
-  OnResized(SDL_WindowEvent &event) final
+  OnResized(SDL_WindowEvent &event) override
   {
     auto const &width  = event.data1;
     auto const &height = event.data2;
@@ -54,7 +54,7 @@ struct Renderer : Window
 
   [[nodiscard]]
   SDL_AppResult
-  Iterate() const final
+  Iterate() const override
   {
     SDL_SetRenderDrawColor(renderer, 0x00, 0xd0, 0xd0, 0xff);
     SDL_RenderClear(renderer);
